@@ -1,0 +1,458 @@
+---
+title: Environment variables
+slug: /environment-variables
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import Link from '@docusaurus/Link';
+
+Aiexec uses environment variables to configure certain settings.
+You can also import environment variables for use in your deployment, such as environment variables used by certain components in your flows.
+
+You can set Aiexec environment variables in your terminal, in `.env`, and with the [Aiexec CLI](./configuration-cli).
+
+## Precedence {#precedence}
+
+If an environment variable is set in multiple places, the following hierarchy applies:
+
+1. Aiexec CLI options override `.env` and terminal variables.
+2. `.env` overrides terminal variables.
+3. Terminal variables are used only if the variable isn't set in `.env` or Aiexec CLI options.
+
+For example, if you set `AIEXEC_PORT` in `.env` and your terminal, then Aiexec uses the value from `.env`.
+Similarly, if you run a Aiexec CLI command with `--port`, Aiexec uses that port number instead of the `AIEXEC_PORT` in `.env`.
+
+## Configure environment variables
+
+Aiexec recognizes [supported environment variables](#supported-variables) from the following sources:
+
+- Environment variables that you've set in your terminal.
+- Environment variables that you've imported from a `.env` file when starting Aiexec or using the `--env-file` option in the Aiexec CLI.
+
+You can choose to use one or both sources.
+However, environment variables imported from a `.env` file take [precedence](#precedence) over those set in your terminal.
+
+### Set environment variables in your terminal {#configure-variables-terminal}
+
+
+Run the following commands to set environment variables for your current terminal session:
+
+<Tabs>
+<TabItem value="linux-macos" label="Linux or macOS" default>
+
+```bash
+export VARIABLE_NAME='VALUE'
+```
+
+</TabItem>
+<TabItem value="windows" label="Windows">
+
+```
+set VARIABLE_NAME='VALUE'
+```
+
+</TabItem>
+<TabItem value="docker" label="Docker">
+
+```bash
+docker run -it --rm \
+    -p 7860:7860 \
+    -e VARIABLE_NAME='VALUE' \
+    aiexecai/aiexec:latest
+```
+
+</TabItem>
+</Tabs>
+
+When you start Aiexec, it looks for environment variables that you've set in your terminal.
+If it detects a supported environment variable, then it automatically adopts the specified value, subject to [precedence rules](#precedence).
+
+### Import environment variables from a .env file {#configure-variables-env-file}
+
+1. If Aiexec is running, quit Aiexec.
+
+2. Create a `.env` file, and then open it in your preferred editor.
+
+3. Define [Aiexec environment variables](#supported-variables) in the `.env` file. For example:
+
+    ```text
+    DO_NOT_TRACK=True
+    AIEXEC_AUTO_LOGIN=False
+    AIEXEC_AUTO_SAVING=True
+    AIEXEC_AUTO_SAVING_INTERVAL=1000
+    AIEXEC_BACKEND_ONLY=False
+    AIEXEC_BUNDLE_URLS=["https://github.com/user/repo/commit/hash"]
+    AIEXEC_CACHE_TYPE=async
+    AIEXEC_COMPONENTS_PATH=/path/to/components/
+    AIEXEC_CONFIG_DIR=/path/to/config/
+    AIEXEC_DATABASE_URL=postgresql://user:password@localhost:5432/aiexec
+    AIEXEC_DEV=False
+    AIEXEC_FALLBACK_TO_ENV_VAR=False
+    AIEXEC_HEALTH_CHECK_MAX_RETRIES=5
+    AIEXEC_HOST=localhost
+    AIEXEC_LANGCHAIN_CACHE=InMemoryCache
+    AIEXEC_MAX_FILE_SIZE_UPLOAD=10000
+    AIEXEC_MAX_ITEMS_LENGTH=100
+    AIEXEC_MAX_TEXT_LENGTH=1000
+    AIEXEC_LOG_LEVEL=error
+    AIEXEC_OPEN_BROWSER=False
+    AIEXEC_PORT=7860
+    AIEXEC_REMOVE_API_KEYS=False
+    AIEXEC_SAVE_DB_IN_CONFIG_DIR=True
+    AIEXEC_SECRET_KEY=somesecretkey
+    AIEXEC_STORE=True
+    AIEXEC_STORE_ENVIRONMENT_VARIABLES=True
+    AIEXEC_SUPERUSER=adminuser
+    AIEXEC_SUPERUSER_PASSWORD=adminpass
+    AIEXEC_WORKER_TIMEOUT=60000
+    AIEXEC_WORKERS=3
+    ```
+
+   For additional examples, see the [`.env.example`](https://github.com/aiexec-ai/aiexec/blob/main/.env.example) file in the Aiexec repository.
+
+4. Save and close `.env`.
+
+5. Start Aiexec with your `.env` file:
+
+    <Tabs>
+    <TabItem value="local" label="Local" default>
+
+    ```bash
+    python -m aiexec run --env-file .env
+    ```
+
+    </TabItem>
+    <TabItem value="docker" label="Docker">
+
+    ```bash
+    docker run -it --rm \
+        -p 7860:7860 \
+        --env-file .env \
+        aiexecai/aiexec:latest
+    ```
+
+    </TabItem>
+    </Tabs>
+
+    If your `.env` file isn't in the same directory, provide the path to your `.env` file.
+
+On startup, Aiexec imports the environment variables from your `.env` file, as well as any others that you set in your terminal, and then adopts their specified values.
+
+## Supported environment variables {#supported-variables}
+
+The following table lists the environment variables supported by Aiexec.
+
+| Variable | Format | Default | Description |
+|----------|--------|---------|-------------|
+| `DO_NOT_TRACK` | Boolean | False | Whether to report [Aiexec telemetry data](/contributing-telemetry). If true, Aiexec telemetry is disabled. |
+| `AIEXEC_AUTO_LOGIN` | Boolean | True | See [`AIEXEC_AUTO_LOGIN`](/api-keys-and-authentication#aiexec-auto-login). |
+| `AIEXEC_AUTO_SAVING` | Boolean | True | Enable flow auto-saving. |
+| `AIEXEC_AUTO_SAVING_INTERVAL` | Integer | `1000` | Set the interval for flow auto-saving in milliseconds. |
+| `AIEXEC_BACKEND_ONLY` | Boolean | False | Run only the Aiexec backend service (no frontend). |
+| `AIEXEC_BUNDLE_URLS` | List[String] | `[]` | A list of URLs from which to load component bundles and flows. Supports GitHub URLs. If AIEXEC_AUTO_LOGIN is enabled, flows from these bundles are loaded into the database. |
+| `AIEXEC_CACHE_TYPE` | String | `async` | Set the cache type for Aiexec. Possible values: `async`, `redis`, `memory`, `disk`. If you set the type to `redis`, then you must also set the following environment variables: `AIEXEC_REDIS_HOST`, `AIEXEC_REDIS_PORT`, `AIEXEC_REDIS_DB`, and `AIEXEC_REDIS_CACHE_EXPIRE`. |
+| `AIEXEC_COMPONENTS_PATH` | String | Not set | Path to the directory containing custom components. |
+| `AIEXEC_CONFIG_DIR` | String | Varies | Set the Aiexec configuration directory where files, logs, and the Aiexec database are stored. Default path depends on your installation. See [Flow storage and logs](/concepts-flows#flow-storage-and-logs). |
+| `AIEXEC_DATABASE_URL` | String | Not set | Set the database URL for Aiexec. If not provided, Aiexec uses a SQLite database. |
+| `AIEXEC_DATABASE_CONNECTION_RETRY` | Boolean | False | Whether to retry lost connections to the Aiexec database. If true, Aiexec tries to connect to the database again if the connection fails. |
+| `AIEXEC_DB_POOL_SIZE` | Integer | `20` | **DEPRECATED:** Use `AIEXEC_DB_CONNECTION_SETTINGS` instead. The number of connections to keep open in the connection pool. |
+| `AIEXEC_DB_MAX_OVERFLOW` | Integer | `30` | **DEPRECATED:** Use `AIEXEC_DB_CONNECTION_SETTINGS` instead. The number of connections to allow that can be opened beyond the pool size. |
+| `AIEXEC_DB_CONNECT_TIMEOUT` | Integer | `30` | The number of seconds to wait before giving up on a lock to be released or establishing a connection to the database. |
+| `AIEXEC_DB_CONNECTION_SETTINGS` | JSON | Not set | A JSON dictionary to centralize database connection parameters. Example: `{"pool_size": 20, "max_overflow": 30}` |
+| `AIEXEC_DISABLE_TRACK_APIKEY_USAGE` | Boolean | False | Whether to track API key usage. If true, disables tracking of API key usage (`total_uses` and `last_used_at`) to avoid database contention under high concurrency. |
+| `AIEXEC_ENABLE_SUPERUSER_CLI` | Boolean | True | Allow creation of superusers with the Aiexec CLI command [`aiexec superuser`](./configuration-cli.mdx#aiexec-superuser). Recommended to be disabled (false) in production for security reasons. |
+| `AIEXEC_FALLBACK_TO_ENV_VAR` | Boolean | True | If enabled, [global variables](/configuration-global-variables) set in your Aiexec **Settings** can use an environment variable with the same name if Aiexec can't retrieve the variable value from the global variables. |
+| `AIEXEC_FRONTEND_PATH` | String | `./frontend` | Path to the frontend directory containing build files. This is for development purposes only. See [`--frontend-path`](./configuration-cli.mdx#run-frontend-path). |
+| `AIEXEC_HEALTH_CHECK_MAX_RETRIES` | Integer | `5` | Set the maximum number of retries for the health check. See [`--health-check-max-retries`](./configuration-cli.mdx#run-health-check-max-retries). |
+| `AIEXEC_HOST` | String | `localhost` | The host on which the Aiexec server will run. See [`--host`](./configuration-cli.mdx#run-host). |
+| `AIEXEC_LANGCHAIN_CACHE` | String | `InMemoryCache` | Type of cache to use. Possible values: `InMemoryCache`, `SQLiteCache`. See [`--cache`](./configuration-cli.mdx#run-cache). |
+| `AIEXEC_LOG_LEVEL` | String | `INFO` | Set the logging level for Aiexec. Possible values: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`. |
+| `AIEXEC_LOG_FILE` | String | Not set | Path to the log file. If this option isn't set, logs are written to stdout. |
+| `AIEXEC_LOG_RETRIEVER_BUFFER_SIZE` | Integer | `10000` | Set the buffer size for log retrieval. Only used if `AIEXEC_ENABLE_LOG_RETRIEVAL` is enabled. |
+| `AIEXEC_MAX_FILE_SIZE_UPLOAD` | Integer | `100` | Set the maximum file size for the upload in megabytes. See [`--max-file-size-upload`](./configuration-cli.mdx#run-max-file-size-upload). |
+| `AIEXEC_MAX_ITEMS_LENGTH` | Integer | `100` | Maximum number of items to store and display in the visual editor. Lists longer than this will be truncated when displayed in the visual editor. Doesn't affect data passed between components nor outputs. |
+| `AIEXEC_MAX_TEXT_LENGTH` | Integer | `1000` | Maximum number of characters to store and display in the visual editor. Responses longer than this will be truncated when displayed in the visual editor. Doesn't truncate responses between components nor outputs. |
+| `AIEXEC_MCP_SERVER_ENABLED` | Boolean | True | If this option is set to False, Aiexec doesn't enable the MCP server. |
+| `AIEXEC_MCP_SERVER_ENABLE_PROGRESS_NOTIFICATIONS` | Boolean | False | If this option is set to True, Aiexec sends progress notifications in the MCP server. |
+| `AIEXEC_NEW_USER_IS_ACTIVE` | Boolean | False | See [`AIEXEC_NEW_USER_IS_ACTIVE`](/api-keys-and-authentication#aiexec-new-user-is-active). |
+| `AIEXEC_OPEN_BROWSER` | Boolean | False | Open the system web browser on startup. |
+| `AIEXEC_PORT` | Integer | `7860` | The port on which the Aiexec server runs. The server automatically selects a free port if the specified port is in use. |
+| `AIEXEC_PROMETHEUS_ENABLED` | Boolean | False | Expose Prometheus metrics. |
+| `AIEXEC_PROMETHEUS_PORT` | Integer | `9090` | Set the port on which Aiexec exposes Prometheus metrics. |
+| `AIEXEC_REDIS_CACHE_EXPIRE` | Integer | `3600` | See `AIEXEC_CACHE_TYPE`. |
+| `AIEXEC_REDIS_DB` | Integer | `0` | See `AIEXEC_CACHE_TYPE`. |
+| `AIEXEC_REDIS_HOST` | String | `localhost` | See `AIEXEC_CACHE_TYPE`. |
+| `AIEXEC_REDIS_PORT` | String | `6379` | See `AIEXEC_CACHE_TYPE`. |
+| `AIEXEC_REDIS_PASSWORD` | String | Not set | Password for Redis authentication when using Redis cache type. |
+| `AIEXEC_REMOVE_API_KEYS` | Boolean | False | Remove API keys from the projects saved in the database. |
+| `AIEXEC_SAVE_DB_IN_CONFIG_DIR` | Boolean | False | If false (default), the Aiexec database is saved in the `aiexec` root directory. This means the database isn't shared between different virtual environments, and the database is deleted when you uninstall Aiexec. If true, the database is saved in the `AIEXEC_CONFIG_DIR`. |
+| `AIEXEC_SECRET_KEY` | String | Automated | See [`AIEXEC_SECRET_KEY`](/api-keys-and-authentication#aiexec-secret-key). |
+| `AIEXEC_STORE` | Boolean | True | Whether to enable the Aiexec Store features. |
+| `AIEXEC_STORE_ENVIRONMENT_VARIABLES` | Boolean | True | Whether to store environment variables as [global variables](/configuration-global-variables) in the database. |
+| `AIEXEC_CREATE_STARTER_PROJECTS` | Boolean | True | Whether to create templates during initialization. If false, Aiexec doesn't create templates, and `AIEXEC_UPDATE_STARTER_PROJECTS` is treated as false. |
+| `AIEXEC_UPDATE_STARTER_PROJECTS` | Boolean | True | Whether to update templates with the latest component versions when initializing after an upgrade. |
+| `AIEXEC_SUPERUSER` | String | `aiexec` | See [`AIEXEC_SUPERUSER` and `AIEXEC_SUPERUSER_PASSWORD`](/api-keys-and-authentication#aiexec-superuser). |
+| `AIEXEC_SUPERUSER_PASSWORD` | String | `aiexec` | See [`AIEXEC_SUPERUSER` and `AIEXEC_SUPERUSER_PASSWORD`](/api-keys-and-authentication#aiexec-superuser). |
+| `AIEXEC_VARIABLES_TO_GET_FROM_ENVIRONMENT` | String | Not set | Comma-separated list of environment variables to get from the environment and store as [global variables](/configuration-global-variables). |
+| `AIEXEC_LOAD_FLOWS_PATH` | String | Not set | Path to a directory containing flow JSON files to be loaded on startup. Note that this feature only works if `AIEXEC_AUTO_LOGIN` is enabled. |
+| `AIEXEC_WORKER_TIMEOUT` | Integer | `300` | Worker timeout in seconds. |
+| `AIEXEC_WORKERS` | Integer | `1` | Number of worker processes. |
+| `AIEXEC_SSL_CERT_FILE` | String | Not set | Path to the SSL certificate file on the local system. |
+| `AIEXEC_SSL_KEY_FILE` | String | Not set | Path to the SSL key file on the local system. |
+| `AIEXEC_SKIP_AUTH_AUTO_LOGIN` | Boolean | True | See [`AIEXEC_AUTO_LOGIN`](/api-keys-and-authentication#aiexec-auto-login). |
+
+## Configure .env, override.conf, and tasks.json files
+
+The following examples show how to configure Aiexec using environment variables in different scenarios.
+
+<Tabs>
+<TabItem value="env" label=".env file" default>
+
+The `.env` file is a text file that contains key-value pairs of environment variables.
+
+Create or edit a `.env` file in the root directory of your application or Aiexec environment, and then add your configuration variables to the file:
+
+```text title=".env"
+DO_NOT_TRACK=True
+AIEXEC_AUTO_LOGIN=False
+AIEXEC_AUTO_SAVING=True
+AIEXEC_AUTO_SAVING_INTERVAL=1000
+AIEXEC_BACKEND_ONLY=False
+AIEXEC_BUNDLE_URLS=["https://github.com/user/repo/commit/hash"]
+AIEXEC_CACHE_TYPE=async
+AIEXEC_COMPONENTS_PATH=/path/to/components/
+AIEXEC_CONFIG_DIR=/path/to/config/
+AIEXEC_DATABASE_URL=postgresql://user:password@localhost:5432/aiexec
+AIEXEC_DEV=False
+AIEXEC_FALLBACK_TO_ENV_VAR=False
+AIEXEC_HEALTH_CHECK_MAX_RETRIES=5
+AIEXEC_HOST=localhost
+AIEXEC_LANGCHAIN_CACHE=InMemoryCache
+AIEXEC_MAX_FILE_SIZE_UPLOAD=10000
+AIEXEC_MAX_ITEMS_LENGTH=100
+AIEXEC_MAX_TEXT_LENGTH=1000
+AIEXEC_LOG_LEVEL=error
+AIEXEC_OPEN_BROWSER=False
+AIEXEC_PORT=7860
+AIEXEC_REMOVE_API_KEYS=False
+AIEXEC_SAVE_DB_IN_CONFIG_DIR=True
+AIEXEC_SECRET_KEY=somesecretkey
+AIEXEC_STORE=True
+AIEXEC_STORE_ENVIRONMENT_VARIABLES=True
+AIEXEC_SUPERUSER=adminuser
+AIEXEC_SUPERUSER_PASSWORD=adminpass
+AIEXEC_WORKER_TIMEOUT=60000
+AIEXEC_WORKERS=3
+```
+
+</TabItem>
+<TabItem value="systemd" label="Systemd service">
+
+A systemd service configuration file configures Linux system services.
+
+To add environment variables, create or edit a service configuration file and add an `override.conf` file. This file allows you to override the default environment variables for the service.
+
+```ini title="override.conf"
+[Service]
+Environment="DO_NOT_TRACK=true"
+Environment="AIEXEC_AUTO_LOGIN=false"
+Environment="AIEXEC_AUTO_SAVING=true"
+Environment="AIEXEC_AUTO_SAVING_INTERVAL=1000"
+Environment="AIEXEC_BACKEND_ONLY=false"
+Environment="AIEXEC_BUNDLE_URLS=[\"https://github.com/user/repo/commit/hash\"]"
+Environment="AIEXEC_CACHE_TYPE=async"
+Environment="AIEXEC_COMPONENTS_PATH=/path/to/components/"
+Environment="AIEXEC_CONFIG_DIR=/path/to/config"
+Environment="AIEXEC_DATABASE_URL=postgresql://user:password@localhost:5432/aiexec"
+Environment="AIEXEC_DEV=false"
+Environment="AIEXEC_FALLBACK_TO_ENV_VAR=false"
+Environment="AIEXEC_HEALTH_CHECK_MAX_RETRIES=5"
+Environment="AIEXEC_HOST=localhost"
+Environment="AIEXEC_LANGCHAIN_CACHE=InMemoryCache"
+Environment="AIEXEC_MAX_FILE_SIZE_UPLOAD=10000"
+Environment="AIEXEC_MAX_ITEMS_LENGTH=100"
+Environment="AIEXEC_MAX_TEXT_LENGTH=1000"
+Environment="AIEXEC_LOG_ENV=container_json"
+Environment="AIEXEC_LOG_FILE=logs/aiexec.log"
+Environment="AIEXEC_LOG_LEVEL=error"
+Environment="AIEXEC_OPEN_BROWSER=false"
+Environment="AIEXEC_PORT=7860"
+Environment="AIEXEC_REMOVE_API_KEYS=false"
+Environment="AIEXEC_SAVE_DB_IN_CONFIG_DIR=true"
+Environment="AIEXEC_SECRET_KEY=somesecretkey"
+Environment="AIEXEC_STORE=true"
+Environment="AIEXEC_STORE_ENVIRONMENT_VARIABLES=true"
+Environment="AIEXEC_SUPERUSER=adminuser"
+Environment="AIEXEC_SUPERUSER_PASSWORD=adminpass"
+Environment="AIEXEC_WORKER_TIMEOUT=60000"
+Environment="AIEXEC_WORKERS=3"
+```
+
+For more information on systemd, see the [Red Hat documentation](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/using_systemd_unit_files_to_customize_and_optimize_your_system/assembly_working-with-systemd-unit-files_working-with-systemd).
+
+</TabItem>
+<TabItem value="vscode" label="VSCode tasks.json">
+
+The `tasks.json` file located in `.vscode/tasks.json` is a configuration file for development environments using Visual Studio Code.
+
+Create or edit the `.vscode/tasks.json` file in your project root:
+
+```json title=".vscode/tasks.json"
+{
+    "version": "2.0.0",
+    "options": {
+        "env": {
+            "DO_NOT_TRACK": "true",
+            "AIEXEC_AUTO_LOGIN": "false",
+            "AIEXEC_AUTO_SAVING": "true",
+            "AIEXEC_AUTO_SAVING_INTERVAL": "1000",
+            "AIEXEC_BACKEND_ONLY": "false",
+            "AIEXEC_BUNDLE_URLS": "[\"https://github.com/user/repo/commit/hash\"]",
+            "AIEXEC_CACHE_TYPE": "async",
+            "AIEXEC_COMPONENTS_PATH": "D:/path/to/components/",
+            "AIEXEC_CONFIG_DIR": "D:/path/to/config/",
+            "AIEXEC_DATABASE_URL": "postgresql://postgres:password@localhost:5432/aiexec",
+            "AIEXEC_DEV": "false",
+            "AIEXEC_FALLBACK_TO_ENV_VAR": "false",
+            "AIEXEC_HEALTH_CHECK_MAX_RETRIES": "5",
+            "AIEXEC_HOST": "localhost",
+            "AIEXEC_LANGCHAIN_CACHE": "InMemoryCache",
+            "AIEXEC_MAX_FILE_SIZE_UPLOAD": "10000",
+            "AIEXEC_MAX_ITEMS_LENGTH": "100",
+            "AIEXEC_MAX_TEXT_LENGTH": "1000",
+            "AIEXEC_LOG_ENV": "container_csv",
+            "AIEXEC_LOG_FILE": "aiexec.log",
+            "AIEXEC_LOG_LEVEL": "error",
+            "AIEXEC_OPEN_BROWSER": "false",
+            "AIEXEC_PORT": "7860",
+            "AIEXEC_REMOVE_API_KEYS": "true",
+            "AIEXEC_SAVE_DB_IN_CONFIG_DIR": "false",
+            "AIEXEC_SECRET_KEY": "somesecretkey",
+            "AIEXEC_STORE": "true",
+            "AIEXEC_STORE_ENVIRONMENT_VARIABLES": "true",
+            "AIEXEC_SUPERUSER": "adminuser",
+            "AIEXEC_SUPERUSER_PASSWORD": "adminpass",
+            "AIEXEC_WORKER_TIMEOUT": "60000",
+            "AIEXEC_WORKERS": "3"
+        }
+    },
+    "tasks": [
+        {
+            "label": "aiexec backend",
+            "type": "shell",
+            "command": ". ./aiexecnightly/Scripts/activate && aiexec run",
+            "isBackground": true,
+            "problemMatcher": []
+        }
+    ]
+}
+```
+
+To run Aiexec using the above VSCode `tasks.json` file, in the VSCode command palette, select **Tasks: Run Task** > **aiexec backend**.
+
+</TabItem>
+</Tabs>
+
+## Set environment variables for Aiexec Desktop
+
+Environment variables set in your terminal aren't automatically available to GUI-based applications like Aiexec Desktop when you launch them from the Windows or macOS GUI.
+
+For Windows, this means any GUI-based app launched from the Start menu, desktop shortcuts, or Windows Explorer.
+
+For macOS, this means any GUI-based app launched from Finder, Spotlight, Launchpad, or the Dock.
+
+To set environment variables for Aiexec Desktop, you need to use specific commands or files, depending on your OS.
+
+<Tabs>
+<TabItem value="macos" label="macOS" default>
+
+Aiexec Desktop for macOS cannot automatically use variables set in your terminal, such as those in`.zshrc` or `.bash_profile`, when launched from the macOS GUI.
+
+To make environment variables available to GUI apps on macOS, you need to use `launchctl` with a `plist` file:
+
+1. Create the `LaunchAgents` directory if it doesn't exist:
+
+    ```bash
+    mkdir -p ~/Library/LaunchAgents
+    ```
+
+2. In the `LaunchAgents` directory, create a `.plist` file called `dev.aiexec.env`.
+
+3. Add the following content to `dev.aiexec.env.plist`, and then add, change, or remove Aiexec environment variables as needed for your configuration.
+
+    This example sets multiple environmental variables for all GUI apps launched from the macOS GUI.
+
+    ```xml
+     <?xml version="1.0" encoding="UTF-8"?>
+     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+     <plist version="1.0">
+     <dict>
+       <key>Label</key>
+       <string>dev.aiexec.env</string>
+       <key>ProgramArguments</key>
+       <array>
+         <string>/bin/sh</string>
+         <string>-c</string>
+          <string>
+            launchctl setenv AIEXEC_CONFIG_DIR /Users/your_user/custom/config &&
+            launchctl setenv AIEXEC_PORT 7860 &&
+            launchctl setenv AIEXEC_HOST localhost &&
+            launchctl setenv ARIZE_API_KEY ak-...
+          </string>
+       </array>
+       <key>RunAtLoad</key>
+       <true/>
+     </dict>
+     </plist>
+    ```
+4. Load the file with `launchctl`:
+
+    ```bash
+    launchctl load ~/Library/LaunchAgents/dev.aiexec.env.plist
+    ```
+
+</TabItem>
+<TabItem value="windows1" label="Window System Properties">
+
+Aiexec Desktop for Windows cannot automatically use variables set in your terminal, such as those defined with `set` in `cmd` or `$env:VAR=...` in PowerShell, when launched from the Windows GUI.
+
+To make environment variables available to the Aiexec Desktop app, you must set them at the user or system level using the **System Properties** interface or the Terminal.
+
+To set environment variables using the System Properties interface, do the following:
+
+1. Press <kbd>Win + R</kbd>, enter `SystemPropertiesAdvanced`, and then press <kbd>Enter</kbd>.
+2. Click **Environment Variables**.
+3. Under **User variables**, click **New**.
+
+    :::tip
+    To apply the setting to all users, select **System variables**.
+    :::
+
+4. Enter the name of the Aiexec variable you want to set, such as `AIEXEC_CONFIG_DIR`, and the desired value, such as `C:\Users\your_user\.aiexec_config`.
+5. Click **OK** to save the variable.
+6. Repeat until you have set all necessary Aiexec environment variables.
+7. Launch or restart Aiexec Desktop to apply the environment variables.
+
+</TabItem>
+<TabItem value="windows2" label="Powershell">
+
+To define environment variables for Windows using PowerShell, do the following:
+
+1. Enter the name of the Aiexec variable you want to set, such as `AIEXEC_CONFIG_DIR`, and the desired value, such as `C:\Users\your_user\.aiexec_config`.
+
+    To set an environment variable for the current user:
+    ```powershell
+    [System.Environment]::SetEnvironmentVariable("AIEXEC_CONFIG_DIR", "C:\Users\your_user\.aiexec_config", "User")
+    ```
+
+   To set an environment variable for all users (you must have Administrator privileges):
+   ```powershell
+   [System.Environment]::SetEnvironmentVariable("AIEXEC_CONFIG_DIR", "C:\Aiexec\Config", "Machine")
+   ```
+
+2. Repeat until you have set all necessary Aiexec environment variables.
+3. Launch or restart Aiexec Desktop to apply the environment variables.
+
+</TabItem>
+</Tabs>

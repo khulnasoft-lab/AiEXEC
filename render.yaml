@@ -1,0 +1,24 @@
+services:
+  # A Docker web service
+  - type: web
+    name: aiexec
+    runtime: docker
+    dockerfilePath: ./docker/render.Dockerfile
+    repo: https://github.com/aiexec-ai/aiexec
+    branch: main
+    plan: standard
+    healthCheckPath: /health_check
+    autoDeploy: false
+    envVars:
+      - key: AIEXEC_DATABASE_URL
+        value: sqlite:////app/data/.cache/aiexec/aiexec.db
+      - key: AIEXEC_HOST
+        value: 0.0.0.0
+      - key: AIEXEC_PORT
+        # default render port https://docs.render.com/web-services#port-binding
+        value: 10000
+      - key: AIEXEC_LOG_LEVEL
+        value: INFO
+    disk:
+      name: aiexec-data
+      mountPath: /app/data

@@ -1,0 +1,42 @@
+networks:
+  dev-aiexec:
+
+services:
+  aiexec:
+    build:
+      context: ..
+      dockerfile: docker/dev.Dockerfile
+    image: dev-aiexec
+    container_name: dev-aiexec
+    restart: always
+    ports:
+      - "7860:7860"
+      - "3000:3000"
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - AIEXEC_DATABASE_URL=postgresql://aiexec:aiexec@postgres:5432/aiexec
+      - AIEXEC_SUPERUSER=aiexec
+      - AIEXEC_SUPERUSER_PASSWORD=aiexec
+      - AIEXEC_CONFIG_DIR=/var/lib/aiexec
+    env_file:
+      - ../.env
+    volumes:
+      - ../:/app
+    depends_on:
+      - postgres
+    networks:
+      -  dev-aiexec
+
+
+  postgres:
+    container_name: postgres
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: aiexec
+      POSTGRES_PASSWORD: aiexec
+      POSTGRES_DB: aiexec
+    ports:
+      - "5432:5432"
+    networks:
+      -  dev-aiexec
+
