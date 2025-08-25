@@ -24,7 +24,7 @@ from aiexec.utils.template_validation import (
 
 def get_starter_projects_path() -> Path:
     """Get path to starter projects directory."""
-    return Path("src/backend/base/aiexec/initial_setup/starter_projects")
+    return Path("api/base/aiexec/initial_setup/starter_projects")
 
 
 def get_template_files():

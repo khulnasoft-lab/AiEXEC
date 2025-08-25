@@ -7,8 +7,8 @@ export default async () => {
   try {
     console.warn("Removing the temp database");
     // Check if the file exists in the path
-    // this file is in src/frontend/tests/globalTeardown.ts
-    // temp is in src/frontend/temp
+    // this file is in web/tests/globalTeardown.ts
+    // temp is in web/temp
     const tempDbPath = path.join(__dirname, "..", "temp");
     console.warn("tempDbPath", tempDbPath);
 

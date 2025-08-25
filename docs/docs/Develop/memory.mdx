@@ -16,7 +16,7 @@ The default storage path depends on your operation system and installation metho
 - **macOS Desktop**: `/Users/<username>/.aiexec/data/database.db`
 - **Windows Desktop**: `C:\Users\<name>\AppData\Roaming\com.Aiexec\data\aiexec.db`
 - **OSS macOS/Windows/Linux/WSL (`uv pip install`)**: `<path_to_venv>/lib/python3.12/site-packages/aiexec/aiexec.db` (Python version may vary)
-- **OSS macOS/Windows/Linux/WSL (`git clone`)**: `<path_to_clone>/src/backend/base/aiexec/aiexec.db`
+- **OSS macOS/Windows/Linux/WSL (`git clone`)**: `<path_to_clone>/api/base/aiexec/aiexec.db`
 
 Alternatively, you can use an external PostgreSQL database for all of your Aiexec storage.
 You can also selectively use external storage for chat memory, separate from other Aiexec storage.
@@ -42,7 +42,7 @@ The following tables are stored in `aiexec.db`:
 
 • **VertexBuild**: Tracks the build status of individual nodes within flows. For more information, see [Test flows in the Playground](/concepts-playground).
 
-For more information, see the database models in the [source code](https://github.com/aiexec-ai/aiexec/tree/main/src/backend/base/aiexec/services/database/models).
+For more information, see the database models in the [source code](https://github.com/aiexec-ai/aiexec/tree/main/api/base/aiexec/services/database/models).
 
 ## Configure external memory
 

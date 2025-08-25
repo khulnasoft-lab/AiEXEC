@@ -1,8 +1,5 @@
 <!-- markdownlint-disable MD030 -->
 
-![Aiexec logo](./docs/static/img/aiexec-logo-color-black-solid.svg)
-
-
 [![Release Notes](https://img.shields.io/github/release/aiexec-ai/aiexec?style=flat-square)](https://github.com/aiexec-ai/aiexec/releases)
 [![PyPI - License](https://img.shields.io/badge/license-MIT-orange)](https://opensource.org/licenses/MIT)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/aiexec?style=flat-square)](https://pypistats.org/packages/aiexec)
@@ -30,8 +27,6 @@
 - **Enterprise-ready** security and scalability.
 
 ## ⚡️ Quickstart
-
-Aiexec requires [Python 3.10 to 3.13](https://www.python.org/downloads/release/python-3100/) and [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 1. To install Aiexec, run:
 

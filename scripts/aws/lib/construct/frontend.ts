@@ -106,7 +106,7 @@ export class Web extends Construct {
   new NodejsBuild(this, 'BuildFrontEnd', {
     assets: [
       {
-        path: '../../src/frontend',
+        path: '../../web',
         exclude: [
           '.git',
           '.github',

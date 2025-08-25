@@ -19,7 +19,7 @@
         "--loop",
         "asyncio",
         "--reload-include",
-        "./src/backend/*"
+        "./api/*"
       ],
       "jinja": true,
       "justMyCode": false,
@@ -37,7 +37,7 @@
       "args": [
         "run",
         "--path",
-        "${workspaceFolder}/src/backend/base/aiexec/frontend",
+        "${workspaceFolder}/api/base/aiexec/frontend",
         "--env-file",
         "${workspaceFolder}/.env"
       ],
@@ -65,7 +65,7 @@
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:3000/",
-      "webRoot": "${workspaceRoot}/src/frontend"
+      "webRoot": "${workspaceRoot}/web"
     },
     {
       "name": "Python: Debug Tests",

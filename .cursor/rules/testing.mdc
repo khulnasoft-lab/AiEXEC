@@ -1,9 +1,9 @@
 ---
 description: "Guidelines for testing Aiexec components and backend code, with emphasis on async patterns and robust, well-documented testing practices."
 globs:
-  - "src/backend/tests/**/*.py"
-  - "src/frontend/**/*.test.{ts,tsx,js,jsx}"
-  - "src/frontend/**/*.spec.{ts,tsx,js,jsx}"
+  - "api/tests/**/*.py"
+  - "web/**/*.test.{ts,tsx,js,jsx}"
+  - "web/**/*.spec.{ts,tsx,js,jsx}"
   - "tests/**/*.py"
   - "conftest.py"
   - "pytest.ini"
@@ -20,8 +20,8 @@ Guidelines for testing Aiexec components and backend code, with emphasis on asyn
 ## 1. Testing Structure
 
 ### Backend Tests Location
-- **Unit Tests:** `src/backend/tests/`
-- **Component Tests:** `src/backend/tests/unit/components/` (organized by component subdirectory)
+- **Unit Tests:** `api/tests/`
+- **Component Tests:** `api/tests/unit/components/` (organized by component subdirectory)
 - **Integration Tests:** Available via `make integration_tests` (requires additional setup)
 
 ### Test File Naming
@@ -33,7 +33,7 @@ Guidelines for testing Aiexec components and backend code, with emphasis on asyn
 ## 2. Built-in Fixtures & Base Classes
 
 ### `client` Fixture (FastAPI Test Client)
-- Defined in `src/backend/tests/conftest.py`
+- Defined in `api/tests/conftest.py`
 - Provides an **async** `httpx.AsyncClient` connected to the full application via `ASGITransport` + `LifespanManager`.
 - Use it for API tests:
   ```python
@@ -45,7 +45,7 @@ Guidelines for testing Aiexec components and backend code, with emphasis on asyn
 - Skip client creation by marking the test with `@pytest.mark.noclient`.
 
 ### `ComponentTestBase` Family
-Located in `src/backend/tests/base.py`.
+Located in `api/tests/base.py`.
 
 | Base Class | Creates `client`? | Typical Use | Notes |
 |------------|------------------|-------------|-------|
@@ -83,7 +83,7 @@ class TestMyComponent(ComponentTestBaseWithClient):
 
 `ComponentTestBase` automatically provides:
 - `test_latest_version` → Instantiates component via `component_class` and asserts `run()` doesn't return `None`.
-- `test_all_versions_have_a_file_name_defined` → Ensures mapping completeness vs `SUPPORTED_VERSIONS` constant (`src/backend/tests/constants.py`).
+- `test_all_versions_have_a_file_name_defined` → Ensures mapping completeness vs `SUPPORTED_VERSIONS` constant (`api/tests/constants.py`).
 - `test_component_versions` (parametrised) → Builds component from source for each supported version and asserts successful execution.
 
 When adding a new component test, **inherit from the correct base class and provide the three fixtures**. This greatly reduces boilerplate and enforces version compatibility.
@@ -157,7 +157,7 @@ async def test_queue_operations():
 
 ### Database Tests
 - `test_database.py` may fail in batch runs but pass individually
-- Run problematic tests sequentially: `uv run pytest src/backend/tests/unit/test_database.py`
+- Run problematic tests sequentially: `uv run pytest api/tests/unit/test_database.py`
 - Consider this behavior when writing database-related tests
 
 ### Context Variables in Async Tests
@@ -180,13 +180,13 @@ make tests_frontend   # Run frontend tests (requires additional setup)
 ### Individual Test Execution
 ```bash
 # Run specific test file
-uv run pytest src/backend/tests/unit/test_specific_component.py
+uv run pytest api/tests/unit/test_specific_component.py
 
 # Run specific test method
-uv run pytest src/backend/tests/unit/test_component.py::test_specific_method
+uv run pytest api/tests/unit/test_component.py::test_specific_method
 
 # Run with verbose output
-uv run pytest -v src/backend/tests/unit/
+uv run pytest -v api/tests/unit/
 ```
 
 ---

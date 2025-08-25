@@ -34,7 +34,7 @@ on:
 env:
   POETRY_VERSION: "1.8.2"
   NODE_VERSION: "21"
-  PYTEST_RUN_PATH: "src/backend/tests"
+  PYTEST_RUN_PATH: "api/tests"
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
@@ -82,7 +82,7 @@ jobs:
         with:
           timeout_minutes: 12
           max_attempts: 2
-          command: make unit_tests args="-x -vv --splits ${{ matrix.splitCount }} --group ${{ matrix.group }} --reruns 5 --cov --cov-config=src/backend/.coveragerc --cov-report=xml --cov-report=html"
+          command: make unit_tests args="-x -vv --splits ${{ matrix.splitCount }} --group ${{ matrix.group }} --reruns 5 --cov --cov-config=api/.coveragerc --cov-report=xml --cov-report=html"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

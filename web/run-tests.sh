@@ -84,7 +84,7 @@ backend_pid=$!  # Capture PID of the backend process
 sleep 25
 
 # Navigate to the test directory
-if ! cd src/frontend; then
+if ! cd web; then
     echo "Error: Failed to navigate to test directory. Aborting."
     kill $backend_pid  # Terminate the backend process if navigation fails
     echo "Backend process terminated."

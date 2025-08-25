@@ -55,11 +55,11 @@ comment:
 flags:
   backend:
     paths:
-      - src/backend/
+      - api/
     carryforward: true  # Preserve coverage data across builds if missing
   frontend:
     paths:
-      - src/frontend/
+      - web/
     carryforward: true  # Preserve coverage data across builds if missing
 
 # Define coverage components for granular reporting
@@ -74,18 +74,18 @@ component_management:
     - component_id: backend_components
       name: "Backend Components"
       paths:
-        - src/backend/base/aiexec/components/**
+        - api/base/aiexec/components/**
     # Note: Many components excluded by .coveragerc (bundled + legacy)
     # This tracks coverage of remaining "core" components only
 
 # Files/directories to exclude from coverage calculations
 ignore:
   # Database migrations - infrastructure code, not business logic
-  - "src/backend/base/aiexec/alembic/**"
+  - "api/base/aiexec/alembic/**"
   # Test files themselves don't need coverage
-  - "src/backend/tests/**"
-  - "src/frontend/tests/**"
-  - "src/frontend/test-results/**"
+  - "api/tests/**"
+  - "web/tests/**"
+  - "web/test-results/**"
   # Build artifacts and dependencies
   - "**/__pycache__/**"
   - "**/*.pyc"

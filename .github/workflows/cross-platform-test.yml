@@ -46,16 +46,16 @@ jobs:
         run: make build_aiexec_base args="--wheel"
       - name: Move base package to correct directory
         run: |
-          # Base package builds to dist/ but should be in src/backend/base/dist/
-          mkdir -p src/backend/base/dist
-          mv dist/aiexec_base*.whl src/backend/base/dist/
+          # Base package builds to dist/ but should be in api/base/dist/
+          mkdir -p api/base/dist
+          mv dist/aiexec_base*.whl api/base/dist/
       - name: Build main package
         run: make build_aiexec args="--wheel"
       - name: Upload base artifact
         uses: actions/upload-artifact@v4
         with:
           name: adhoc-dist-base
-          path: src/backend/base/dist
+          path: api/base/dist
       - name: Upload main artifact
         uses: actions/upload-artifact@v4
         with:

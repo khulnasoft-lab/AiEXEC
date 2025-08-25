@@ -260,17 +260,17 @@ aiexec.db
 .docusaurus/
 
 /tmp/*
-src/backend/aiexec/frontend/
-src/backend/base/aiexec/frontend/
+api/aiexec/frontend/
+api/base/aiexec/frontend/
 .docker
 scratchpad*
 chroma*/*
 stuff/*
-src/frontend/playwright-report/index.html
+web/playwright-report/index.html
 *.bak
 prof/*
 
-src/frontend/temp
+web/temp
 *-shm
 *-wal
 .history

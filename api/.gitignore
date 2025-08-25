@@ -5,7 +5,7 @@ __pycache__/
 notebooks
 
 # frontend
-src/frontend
+web
 
 # C extensions
 *.so

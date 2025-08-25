@@ -99,7 +99,7 @@ class JSONFlow:
 
 def download_flow_from_github(name: str, version: str) -> JSONFlow:
     response = requests.get(
-        f"https://raw.githubusercontent.com/aiexec-ai/aiexec/v{version}/src/backend/base/aiexec/initial_setup/starter_projects/{name}.json",
+        f"https://raw.githubusercontent.com/aiexec-ai/aiexec/v{version}/api/base/aiexec/initial_setup/starter_projects/{name}.json",
         timeout=10,
     )
     response.raise_for_status()
@@ -110,7 +110,7 @@ def download_flow_from_github(name: str, version: str) -> JSONFlow:
 def download_component_from_github(module: str, file_name: str, version: str) -> Component:
     version_string = f"v{version}" if version != "main" else version
     response = requests.get(
-        f"https://raw.githubusercontent.com/aiexec-ai/aiexec/{version_string}/src/backend/base/aiexec/components/{module}/{file_name}.py",
+        f"https://raw.githubusercontent.com/aiexec-ai/aiexec/{version_string}/api/base/aiexec/components/{module}/{file_name}.py",
         timeout=10,
     )
     response.raise_for_status()

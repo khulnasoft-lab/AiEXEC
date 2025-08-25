@@ -1,10 +1,10 @@
 ---
 description: "Rules for creating and implementing component icons in Aiexec, covering both backend Python component icon attributes and frontend React icon implementation."
 globs:
-  - "src/frontend/src/icons/**/*"
-  - "src/frontend/src/icons/lazyIconImports.ts"
-  - "src/backend/**/*component*.py"
-  - "src/backend/**/components/**/*.py"
+  - "web/src/icons/**/*"
+  - "web/src/icons/lazyIconImports.ts"
+  - "api/**/*component*.py"
+  - "api/**/components/**/*.py"
 alwaysApply: false
 ---
 
@@ -18,7 +18,7 @@ To ensure consistent, clear, and functional icon usage for components, covering 
 
 ## 1. Backend (Python) — Setting the Icon Name
 
-- **Where:** In your component class (e.g., in `src/backend/base/aiexec/components/vectorstores/astradb.py`)
+- **Where:** In your component class (e.g., in `api/base/aiexec/components/vectorstores/astradb.py`)
 - **How:**
   Set the `icon` attribute to a string matching the icon you want to use.
   ```python
@@ -34,7 +34,7 @@ To ensure consistent, clear, and functional icon usage for components, covering 
 ### a. Create the Icon Component
 
 - **Where:**
-  In a new directory for your icon, e.g., `src/frontend/src/icons/AstraDB/`.
+  In a new directory for your icon, e.g., `web/src/icons/AstraDB/`.
 - **How:**
 
   - Add your SVG as a React component, e.g., `AstraSVG` in `AstraDB.jsx`.
@@ -81,7 +81,7 @@ To ensure consistent, clear, and functional icon usage for components, covering 
 ### b. Add to Lazy Icon Imports
 
 - **Where:**
-  In `src/frontend/src/icons/lazyIconImports.ts`
+  In `web/src/icons/lazyIconImports.ts`
 - **How:**
   Add an entry to the `lazyIconsMapping` object:
   ```ts
@@ -110,10 +110,10 @@ To ensure consistent, clear, and functional icon usage for components, covering 
 
 - [ ] Decide on a clear, descriptive icon name (e.g., `AstraDB`).
 - [ ] In your Python component, set `icon = "YourIconName"`.
-- [ ] Create a new icon directory in `src/frontend/src/icons/YourIconName/`.
+- [ ] Create a new icon directory in `web/src/icons/YourIconName/`.
 - [ ] Add your SVG as a React component (e.g., `YourIconNameIcon.jsx`).
 - [ ] Create an `index.tsx` that exports your icon using `forwardRef` and passes the `isDark` prop.
-- [ ] Add your icon to `lazyIconsMapping` in `src/frontend/src/icons/lazyIconImports.ts` with the exact same name.
+- [ ] Add your icon to `lazyIconsMapping` in `web/src/icons/lazyIconImports.ts` with the exact same name.
 - [ ] Verify the icon appears correctly in the UI in both light and dark mode.
 - [ ] If no suitable icon exists, use a generic icon and request a new one if needed.
 

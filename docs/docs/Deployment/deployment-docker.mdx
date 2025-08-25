@@ -159,7 +159,7 @@ FROM aiexecai/aiexec:latest
 WORKDIR /app
 
 # Copy your modified memory component
-COPY src/backend/base/aiexec/components/helpers/memory.py /tmp/memory.py
+COPY api/base/aiexec/components/helpers/memory.py /tmp/memory.py
 
 # Find the site-packages directory where aiexec is installed
 RUN python -c "import site; print(site.getsitepackages()[0])" > /tmp/site_packages.txt
@@ -194,7 +194,7 @@ To use this custom Dockerfile, do the following:
 In this example, Aiexec expects `memory.py` to exist in the `/helpers` directory, so you create a directory in that location.
 
     ```bash
-    mkdir -p src/backend/base/aiexec/components/helpers
+    mkdir -p api/base/aiexec/components/helpers
     ```
 
 3. Place your modified `memory.py` file in the `/helpers` directory.

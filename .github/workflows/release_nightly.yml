@@ -102,16 +102,16 @@ jobs:
 
       - name: Build project for distribution
         run: |
-          rm -rf src/backend/base/dist
+          rm -rf api/base/dist
           rm -rf dist
           make build base=true args="--wheel"
 
       - name: Test CLI
         run: |
-          # TODO: Unsure why the whl is not built in src/backend/base/dist
-          mkdir src/backend/base/dist
-          mv dist/*.whl src/backend/base/dist/
-          uv pip install src/backend/base/dist/*.whl
+          # TODO: Unsure why the whl is not built in api/base/dist
+          mkdir api/base/dist
+          mv dist/*.whl api/base/dist/
+          uv pip install api/base/dist/*.whl
           uv run python -m aiexec run --host localhost --port 7860 --backend-only &
           SERVER_PID=$!
           # Wait for the server to start
@@ -133,7 +133,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dist-nightly-base
-          path: src/backend/base/dist
+          path: api/base/dist
 
   build-nightly-main:
     name: Build Aiexec Nightly Main
@@ -227,7 +227,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: dist-nightly-base
-          path: src/backend/base/dist
+          path: api/base/dist
       - name: Setup Environment
         uses: astral-sh/setup-uv@v6
         with:

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd src/frontend \
+cd web \
     && rm -rf node_modules \
     && npm install \
     && npm run dev:docker &

@@ -2,18 +2,12 @@
 name = "aiexec"
 version = "1.5.0.post2"
 description = "A Python package with a built-in web application"
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.12,<3.13"
 license = "MIT"
 keywords = ["nlp", "langchain", "openai", "gpt", "gui"]
 readme = "README.md"
 maintainers = [
-    { name = "Carlos Coelho", email = "carlos@aiexec.org" },
-    { name = "Cristhian Zanforlin", email = "cristhian.lousa@gmail.com" },
-    { name = "Gabriel Almeida", email = "gabriel@aiexec.org" },
-    { name = "Lucas Eduoli", email = "lucaseduoli@gmail.com" },
-    { name = "Otávio Anovazzi", email = "otavio2204@gmail.com" },
-    { name = "Rodrigo Nader", email = "rodrigo@aiexec.org" },
-    { name = "Italo dos Anjos", email = "italojohnnydosanjos@gmail.com" },
+    { name = "Md Sulaiman", email = "dev.sulaman@icloud.com" }
 ]
 # Define your main dependencies here
 dependencies = [
@@ -196,7 +190,7 @@ Documentation = "https://docs.aiexec.org"
 
 [project.optional-dependencies]
 docling = [
-    "docling>=2.36.1",
+    "docling>=2.36.1,<2.47.0", # until verified with >5.0.0 pypdfium2
 ]
 
 audio = [
@@ -279,7 +273,7 @@ directory = "coverage"
 
 
 [tool.ruff]
-exclude = ["api/base/aiexec/alembic/*", "src/frontend/tests/assets/*"]
+exclude = ["api/base/aiexec/alembic/*", "web/tests/assets/*"]
 line-length = 120
 
 [tool.ruff.lint]

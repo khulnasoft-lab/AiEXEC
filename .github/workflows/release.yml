@@ -95,10 +95,10 @@ jobs:
       - name: Test CLI
         if: steps.check-version.outputs.skipped == 'false'
         run: |
-          # TODO: Unsure why the whl is not built in src/backend/base/dist
-          mkdir src/backend/base/dist
-          mv dist/*.whl src/backend/base/dist
-          uv pip install src/backend/base/dist/*.whl
+          # TODO: Unsure why the whl is not built in api/base/dist
+          mkdir api/base/dist
+          mv dist/*.whl api/base/dist
+          uv pip install api/base/dist/*.whl
           uv run python -m aiexec run --host localhost --port 7860 --backend-only &
           SERVER_PID=$!
           # Wait for the server to start
@@ -121,7 +121,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dist-base
-          path: src/backend/base/dist
+          path: api/base/dist
 
   build-main:
     name: Build Aiexec Main
@@ -219,7 +219,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: dist-base
-          path: src/backend/base/dist
+          path: api/base/dist
       - name: Setup Environment
         uses: astral-sh/setup-uv@v6
         with:
@@ -230,7 +230,7 @@ jobs:
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          cd src/backend/base && uv publish dist/*.whl
+          cd api/base && uv publish dist/*.whl
 
   publish-main:
     name: Publish Aiexec Main to PyPI

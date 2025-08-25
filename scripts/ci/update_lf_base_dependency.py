@@ -18,7 +18,7 @@ def update_base_dep(pyproject_path: str, new_version: str) -> None:
     replacement = f'aiexec-base-nightly = "{new_version}"'
 
     # Updates the pattern for poetry
-    pattern = re.compile(r'aiexec-base = \{ path = "\./src/backend/base", develop = true \}')
+    pattern = re.compile(r'aiexec-base = \{ path = "\./api/base", develop = true \}')
     if not pattern.search(content):
         msg = f'aiexec-base poetry dependency not found in "{filepath}"'
         raise ValueError(msg)

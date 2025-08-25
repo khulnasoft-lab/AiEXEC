@@ -7,7 +7,7 @@ on:
       - "docker/**"
       - "uv.lock"
       - "pyproject.toml"
-      - "src/backend/**"
+      - "api/**"
       - ".github/workflows/docker_test.yml"
   pull_request:
     branches: [dev]

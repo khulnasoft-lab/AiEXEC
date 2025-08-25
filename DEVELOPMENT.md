@@ -182,7 +182,7 @@ At which point you can navigate to http://localhost:3001/ in a browser and view 
 
 ## Adding or Modifying a Component
 
-Components reside in folders under `src/backend/base/aiexec`, and their unit tests under `src/backend/base/tests/unit/components`.
+Components reside in folders under `api/base/aiexec`, and their unit tests under `api/base/tests/unit/components`.
 
 ### Adding a Component
 
@@ -225,15 +225,15 @@ You may observe some quirky things:
 
 ### Testing
 
-* Backend test `src/backend/tests/unit/test_database.py` can fail when running with `make tests` but passes when running manually
-  * You can validate this by running the test cases sequentially: `uv run pytest src/backend/tests/unit/test_database.py`
+* Backend test `api/tests/unit/test_database.py` can fail when running with `make tests` but passes when running manually
+  * You can validate this by running the test cases sequentially: `uv run pytest api/tests/unit/test_database.py`
 * There are some other test targets: `integration_tests`, `coverage`, `tests_frontend` but these require additional setup not covered in this document.
 
 ### Files That Change
 
 There are some files that change without you having made changes:
 
-* Files in `src/backend/base/aiexec/initial_setup/starter_projects` modify after `aiexec run`; these are formatting changes. Feel free to commit (or ignore) them.
-* `uv.lock` and `src/frontend/package-lock.json` files can be modified by `make` targets; changes should not be committed by individual contributors.
-   * You can exclude these from consideration in git: `git update-index --assume-unchanged uv.lock src/frontend/package-lock.json`
-   * You can re-include these from consideration in git: `git update-index --no-assume-unchanged uv.lock src/frontend/package-lock.json`
+* Files in `api/base/aiexec/initial_setup/starter_projects` modify after `aiexec run`; these are formatting changes. Feel free to commit (or ignore) them.
+* `uv.lock` and `web/package-lock.json` files can be modified by `make` targets; changes should not be committed by individual contributors.
+   * You can exclude these from consideration in git: `git update-index --assume-unchanged uv.lock web/package-lock.json`
+   * You can re-include these from consideration in git: `git update-index --no-assume-unchanged uv.lock web/package-lock.json`

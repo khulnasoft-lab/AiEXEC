@@ -1,12 +1,12 @@
 ---
 description: "Guidelines for frontend development in Aiexec, focusing on React/TypeScript UI components, build processes, and frontend testing."
 globs:
-  - "src/frontend/**/*.{ts,tsx,js,jsx}"
-  - "src/frontend/**/*.{css,scss,json}"
-  - "src/frontend/package*.json"
-  - "src/frontend/vite.config.*"
-  - "src/frontend/tailwind.config.*"
-  - "src/frontend/tsconfig.json"
+  - "web/**/*.{ts,tsx,js,jsx}"
+  - "web/**/*.{css,scss,json}"
+  - "web/package*.json"
+  - "web/vite.config.*"
+  - "web/tailwind.config.*"
+  - "web/tsconfig.json"
 alwaysApply: false
 ---
 
@@ -23,7 +23,7 @@ make frontend  # Start Vite dev server on port 3000
 ```
 - Hot-reload enabled for UI changes
 - Access at: http://localhost:3000/
-- Frontend source: `src/frontend/`
+- Frontend source: `web/`
 
 ---
 
@@ -31,7 +31,7 @@ make frontend  # Start Vite dev server on port 3000
 
 ### Directory Layout
 ```
-src/frontend/src/
+web/src/
 ├── components/          # Reusable UI components
 ├── pages/              # Page-level components
 ├── icons/              # Component icons and lazy loading
@@ -346,12 +346,12 @@ make build_frontend  # Build frontend static files
 
 ### Production Build
 ```bash
-cd src/frontend
+cd web
 npm run build  # Creates dist/ directory
 ```
 
 ### Build Integration
-- Frontend builds to `src/frontend/dist/`
+- Frontend builds to `web/dist/`
 - Backend serves static files from this directory in production
 - `make init` includes frontend build step
 ---

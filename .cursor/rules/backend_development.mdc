@@ -1,7 +1,7 @@
 ---
 description: "Guidelines for backend development in Aiexec, focusing on Python components, FastAPI services, and backend testing."
 globs:
-  - "src/backend/**/*.py"
+  - "api/**/*.py"
   - "tests/**/*.py"
   - "Makefile"
   - "pyproject.toml"
@@ -30,7 +30,7 @@ make backend  # Start FastAPI backend on port 7860
 ```
 - Auto-reloads on file changes
 - Health check: http://localhost:7860/health
-- Backend components: `src/backend/base/aiexec/`
+- Backend components: `api/base/aiexec/`
 
 ---
 
@@ -38,7 +38,7 @@ make backend  # Start FastAPI backend on port 7860
 
 ### Component Structure
 ```
-src/backend/base/aiexec/components/
+api/base/aiexec/components/
 ├── agents/           # Agent components
 ├── data/            # Data processing components
 ├── embeddings/      # Embedding components
@@ -51,7 +51,7 @@ src/backend/base/aiexec/components/
 ```
 
 ### Adding New Components
-1. **Location:** Add to appropriate subdirectory under `src/backend/base/aiexec/components/`
+1. **Location:** Add to appropriate subdirectory under `api/base/aiexec/components/`
 2. **Import:** Update `__init__.py` with alphabetical imports:
    ```python
    from .my_component import MyComponent
@@ -65,7 +65,7 @@ src/backend/base/aiexec/components/
 4. **Browser refresh:** Refresh browser to see component changes
 
 ### Component Testing
-- **Unit Tests:** `src/backend/tests/unit/components/`
+- **Unit Tests:** `api/tests/unit/components/`
 - **Test Structure:** Mirror component directory structure
 - **Test Base Classes:** Use `ComponentTestBaseWithClient` or `ComponentTestBaseWithoutClient`
 - **Version Testing:** Provide `file_names_mapping` for backward compatibility
@@ -107,7 +107,7 @@ make unit_tests  # Run backend unit tests
 
 ### API Structure
 ```
-src/backend/base/aiexec/api/
+api/base/aiexec/api/
 ├── v1/              # API version 1
 │   ├── chat.py      # Chat endpoints
 │   ├── flows.py     # Flow management
@@ -136,7 +136,7 @@ src/backend/base/aiexec/api/
 
 ### Models Location
 ```
-src/backend/base/aiexec/services/database/models/
+api/base/aiexec/services/database/models/
 ├── api_key/         # API key models
 ├── flow/            # Flow models
 ├── folder/          # Folder models
@@ -148,7 +148,7 @@ src/backend/base/aiexec/services/database/models/
 - Use in-memory SQLite for tests
 - Database tests may fail in batch runs - run individually if needed:
   ```bash
-  uv run pytest src/backend/tests/unit/test_database.py
+  uv run pytest api/tests/unit/test_database.py
   ```
 
 ---

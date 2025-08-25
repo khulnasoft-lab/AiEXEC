@@ -43,7 +43,7 @@ def fake_env_file(tmp_path):
 
 def test_run_flow_with_fake_env(fake_env_file):
     # Load the flow from the JSON file
-    # flow_file = Path("src/backend/tests/data/env_variable_test.json")
+    # flow_file = Path("api/tests/data/env_variable_test.json")
     flow_file = pytest.ENV_VARIABLE_TEST
     tweaks_dict = {"Secret-zIbKs": {"secret_key_input": "TEST_OP"}}
 
@@ -61,7 +61,7 @@ def test_run_flow_with_fake_env(fake_env_file):
 
 def test_run_flow_with_fake_env_tweaks(fake_env_file):
     # Load the flow from the JSON file
-    # flow_file = Path("src/backend/tests/data/env_variable_test.json")
+    # flow_file = Path("api/tests/data/env_variable_test.json")
     flow_file = pytest.ENV_VARIABLE_TEST
 
     # Load env file and set up tweaks
