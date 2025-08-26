@@ -56,7 +56,288 @@ Choose an appropriate category from existing ones in `aiexec/api/base/aiexec/com
 - **Security**: Does it handle sensitive data? Any authentication needed?
 - **Testing**: What are the key test cases?
 
-## 2. Component Implementation
+## 2. Real-world Component Examples
+
+### 2.1 Data Processing Component
+```python
+# components/data_processing/text_cleaner.py
+from typing import Dict, Any, Optional
+from aiexec.components.base import Component
+from aiexec.components.fields import StringInput, Output, BooleanInput
+import re
+
+class TextCleanerComponent(Component):
+    """
+    Cleans and normalizes text input by removing extra whitespace,
+    special characters, and optionally converting to lowercase.
+    
+    Example Usage:
+    - Clean user input before processing
+    - Normalize text for NLP tasks
+    - Prepare text for storage or analysis
+    """
+    display_name = "Text Cleaner"
+    description = "Cleans and normalizes text input by removing extra whitespace and special characters."
+    icon = "type"
+    name = "TextCleaner"
+    version = "1.0.0"
+    
+    inputs = [
+        StringInput(
+            name="text",
+            display_name="Input Text",
+            info="The text to be cleaned",
+            required=True
+        ),
+        BooleanInput(
+            name="to_lowercase",
+            display_name="Convert to Lowercase",
+            info="Whether to convert text to lowercase",
+            default=True
+        ),
+        BooleanInput(
+            name="remove_special_chars",
+            display_name="Remove Special Characters",
+            info="Remove non-alphanumeric characters",
+            default=True
+        )
+    ]
+    
+    outputs = [
+        Output(
+            name="cleaned_text",
+            field=StringInput(
+                name="cleaned_text",
+                display_name="Cleaned Text",
+                info="The cleaned and normalized text output"
+            )
+        )
+    ]
+    
+    async def run(self) -> Dict[str, Any]:
+        text = self.get_input("text")
+        to_lowercase = self.get_input("to_lowercase")
+        remove_special = self.get_input("remove_special_chars")
+        
+        # Clean whitespace
+        cleaned = " ".join(text.split())
+        
+        # Convert to lowercase if needed
+        if to_lowercase:
+            cleaned = cleaned.lower()
+            
+        # Remove special characters if needed
+        if remove_special:
+            cleaned = re.sub(r'[^\w\s]', '', cleaned)
+            
+        return {"cleaned_text": cleaned}
+```
+
+### 2.2 API Integration Component
+```python
+# components/apis/weather_api.py
+from typing import Dict, Any, Optional
+import httpx
+from aiexec.components.base import Component
+from aiexec.components.fields import StringInput, NumberInput, Output, DropdownInput
+
+class WeatherAPIClient(Component):
+    """
+    Fetches weather data from a public weather API.
+    
+    This component demonstrates:
+    - Making HTTP requests to external APIs
+    - Handling API keys and authentication
+    - Processing and transforming API responses
+    - Error handling for external services
+    """
+    display_name = "Weather API"
+    description = "Fetches current weather data for a specified location"
+    icon = "cloud"
+    name = "WeatherAPI"
+    version = "1.0.0"
+    
+    inputs = [
+        StringInput(
+            name="api_key",
+            display_name="API Key",
+            info="Your OpenWeatherMap API key",
+            required=True,
+            password=True
+        ),
+        StringInput(
+            name="city",
+            display_name="City",
+            info="Name of the city",
+            required=True
+        ),
+        StringInput(
+            name="country_code",
+            display_name="Country Code",
+            info="ISO 3166 country code (e.g., 'us', 'gb')",
+            default="us"
+        ),
+        DropdownInput(
+            name="units",
+            display_name="Units",
+            info="Units of measurement",
+            options=["metric", "imperial", "standard"],
+            default="metric"
+        )
+    ]
+    
+    outputs = [
+        Output(
+            name="weather_data",
+            field=StringInput(
+                name="weather_data",
+                display_name="Weather Data",
+                info="Formatted weather information"
+            )
+        ),
+        Output(
+            name="temperature",
+            field=NumberInput(
+                name="temperature",
+                display_name="Temperature",
+                info="Current temperature"
+            )
+        )
+    ]
+    
+    async def run(self) -> Dict[str, Any]:
+        base_url = "https://api.openweathermap.org/data/2.5/weather"
+        params = {
+            "q": f"{self.get_input('city')},{self.get_input('country_code')}",
+            "appid": self.get_input("api_key"),
+            "units": self.get_input("units")
+        }
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(base_url, params=params)
+                response.raise_for_status()
+                data = response.json()
+                
+                return {
+                    "weather_data": (
+                        f"Weather in {data['name']}: {data['weather'][0]['description']}"
+                        f"\nTemperature: {data['main']['temp']}°C"
+                        f"\nHumidity: {data['main']['humidity']}%"
+                        f"\nWind: {data['wind']['speed']} m/s"
+                    ),
+                    "temperature": data['main']['temp']
+                }
+                
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 401:
+                raise ValueError("Invalid API key")
+            elif e.response.status_code == 404:
+                raise ValueError("City not found")
+            else:
+                raise Exception(f"Weather API error: {str(e)}")
+        except Exception as e:
+            raise Exception(f"Failed to fetch weather data: {str(e)}")
+```
+
+### 2.3 AI Model Integration Component
+```python
+# components/ai_models/sentiment_analyzer.py
+from typing import Dict, Any, List
+from aiexec.components.base import Component
+from aiexec.components.fields import StringInput, Output, DropdownInput
+from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
+import torch
+
+class SentimentAnalyzerComponent(Component):
+    """
+    Analyzes sentiment of input text using a pre-trained model.
+    
+    This component demonstrates:
+    - Loading and using Hugging Face models
+    - GPU acceleration when available
+    - Batching for improved performance
+    - Model configuration options
+    """
+    display_name = "Sentiment Analyzer"
+    description = "Analyzes sentiment of text using a pre-trained model"
+    icon = "smile"
+    name = "SentimentAnalyzer"
+    version = "1.0.1"
+    
+    # Model cache to avoid reloading
+    _model = None
+    _tokenizer = None
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.device = 0 if torch.cuda.is_available() else -1  # Use GPU if available
+        
+    @classmethod
+    def get_model(cls):
+        """Singleton pattern to load model only once."""
+        if cls._model is None or cls._tokenizer is None:
+            model_name = "distilbert-base-uncased-finetuned-sst-2-english"
+            cls._tokenizer = AutoTokenizer.from_pretrained(model_name)
+            cls._model = AutoModelForSequenceClassification.from_pretrained(model_name)
+        return cls._model, cls._tokenizer
+    
+    inputs = [
+        StringInput(
+            name="text",
+            display_name="Input Text",
+            info="Text to analyze",
+            required=True
+        ),
+        DropdownInput(
+            name="return_all_scores",
+            display_name="Return All Scores",
+            info="Return scores for all labels or just the top one",
+            options=["true", "false"],
+            default="false"
+        )
+    ]
+    
+    outputs = [
+        Output(
+            name="sentiment",
+            field=StringInput(
+                name="sentiment",
+                display_name="Sentiment",
+                info="Analyzed sentiment result"
+            )
+        ),
+        Output(
+            name="scores",
+            field=StringInput(
+                name="scores",
+                display_name="Scores",
+                info="Detailed sentiment scores"
+            )
+        )
+    ]
+    
+    async def run(self) -> Dict[str, Any]:
+        model, tokenizer = self.get_model()
+        classifier = pipeline(
+            "sentiment-analysis",
+            model=model,
+            tokenizer=tokenizer,
+            device=self.device
+        )
+        
+        result = classifier(
+            self.get_input("text"),
+            return_all_scores=(self.get_input("return_all_scores") == "true")
+        )
+        
+        return {
+            "sentiment": str(result[0]["label"] if isinstance(result[0], list) else result[0]["label"]),
+            "scores": str(result)
+        }
+```
+
+## 3. Component Implementation
 
 ### 2.1 Basic Structure
 ```python

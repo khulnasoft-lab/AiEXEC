@@ -153,7 +153,108 @@ api/base/aiexec/services/database/models/
 
 ---
 
-## 6. Async Development Patterns
+## 6. Error Handling Patterns
+
+### Standard Error Responses
+```python
+from fastapi import HTTPException
+from pydantic import BaseModel
+
+class ErrorResponse(BaseModel):
+    detail: str
+    error_code: str
+    context: dict = {}
+
+def raise_http_error(status_code: int, detail: str, error_code: str, **kwargs):
+    """Raise standardized HTTP exceptions with error codes."""
+    raise HTTPException(
+        status_code=status_code,
+        detail={
+            "detail": detail,
+            "error_code": error_code,
+            **kwargs
+        }
+    )
+
+# Usage in endpoints
+raise_http_error(
+    status_code=404,
+    detail="Resource not found",
+    error_code="RESOURCE_NOT_FOUND",
+    resource_type="user",
+    resource_id=user_id
+)
+```
+
+### Retry Mechanisms
+```python
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=4, max=10),
+    reraise=True
+)
+async def fetch_external_data(url: str):
+    """Fetch data with exponential backoff retry."""
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url)
+        response.raise_for_status()
+        return response.json()
+```
+
+### Context Managers for Resources
+```python
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def acquire_db_connection():
+    """Context manager for database connections with error handling."""
+    conn = None
+    try:
+        conn = await database.acquire_connection()
+        yield conn
+    except DatabaseError as e:
+        logger.error(f"Database error: {str(e)}")
+        raise_http_error(500, "Database operation failed", "DATABASE_ERROR")
+    finally:
+        if conn:
+            await conn.close()
+
+# Usage
+async with acquire_db_connection() as conn:
+    result = await conn.execute(query)
+```
+
+### Validation Error Handling
+```python
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from pydantic import ValidationError
+
+app = FastAPI()
+
+@app.exception_handler(ValidationError)
+async def validation_exception_handler(request: Request, exc: ValidationError):
+    """Handle Pydantic validation errors."""
+    errors = []
+    for error in exc.errors():
+        errors.append({
+            "loc": ".".join(str(loc) for loc in error["loc"]),
+            "msg": error["msg"],
+            "type": error["type"]
+        })
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": "Validation error",
+            "error_code": "VALIDATION_ERROR",
+            "errors": errors
+        }
+    )
+```
+
+## 7. Async Development Patterns
 
 ### Component Async Methods
 ```python

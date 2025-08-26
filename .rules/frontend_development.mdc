@@ -80,20 +80,140 @@ make tests_frontend  # Run frontend tests (requires additional setup)
 
 ## 4. State Management
 
-### Zustand Stores
+### Basic Zustand Store
 ```typescript
-// stores/myStore.ts
+// stores/counterStore.ts
 import { create } from 'zustand';
 
-interface MyState {
-  value: string;
-  setValue: (value: string) => void;
+interface CounterState {
+  count: number;
+  increment: () => void;
+  decrement: () => void;
+  reset: () => void;
 }
 
-export const useMyStore = create<MyState>((set) => ({
-  value: '',
-  setValue: (value) => set({ value }),
+export const useCounterStore = create<CounterState>((set) => ({
+  count: 0,
+  increment: () => set((state) => ({ count: state.count + 1 })),
+  decrement: () => set((state) => ({ count: state.count - 1 })),
+  reset: () => set({ count: 0 }),
 }));
+```
+
+### Advanced Store with Async Actions
+```typescript
+// stores/todoStore.ts
+import { create } from 'zustand';
+import { devtools, persist } from 'zustand/middleware';
+
+interface Todo {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+interface TodoState {
+  todos: Todo[];
+  loading: boolean;
+  error: string | null;
+  addTodo: (text: string) => void;
+  toggleTodo: (id: string) => void;
+  fetchTodos: () => Promise<void>;
+}
+
+export const useTodoStore = create<TodoState>()(
+  devtools(
+    persist(
+      (set, get) => ({
+        todos: [],
+        loading: false,
+        error: null,
+        addTodo: (text) =>
+          set((state) => ({
+            todos: [
+              ...state.todos,
+              { id: Date.now().toString(), text, completed: false },
+            ],
+          })),
+        toggleTodo: (id) =>
+          set((state) => ({
+            todos: state.todos.map((todo) =>
+              todo.id === id ? { ...todo, completed: !todo.completed } : todo
+            ),
+          })),
+        fetchTodos: async () => {
+          set({ loading: true, error: null });
+          try {
+            const response = await fetch('/api/todos');
+            const todos = await response.json();
+            set({ todos, loading: false });
+          } catch (error) {
+            set({ error: 'Failed to fetch todos', loading: false });
+          }
+        },
+      }),
+      {
+        name: 'todo-storage', // LocalStorage key
+      }
+    )
+  )
+);
+```
+
+### Selectors for Performance
+```typescript
+// In your component file
+import { useTodoStore } from '@/stores/todoStore';
+
+// Only re-renders when completed todos change
+const completedTodos = useTodoStore(
+  (state) => state.todos.filter((todo) => todo.completed)
+);
+
+// Shallow equality comparison for objects/arrays
+const { loading, error } = useTodoStore(
+  (state) => ({
+    loading: state.loading,
+    error: state.error,
+  }),
+  shallow // From 'zustand/shallow'
+);
+```
+
+### Persistence Middleware
+```typescript
+// stores/settingsStore.ts
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+
+interface SettingsState {
+  theme: 'light' | 'dark';
+  fontSize: number;
+  toggleTheme: () => void;
+  setFontSize: (size: number) => void;
+}
+
+export const useSettingsStore = create<SettingsState>()(
+  persist(
+    (set) => ({
+      theme: 'light',
+      fontSize: 14,
+      toggleTheme: () =>
+        set((state) => ({
+          theme: state.theme === 'light' ? 'dark' : 'light',
+        })),
+      setFontSize: (fontSize) => set({ fontSize }),
+    }),
+    {
+      name: 'settings-storage',
+      storage: createJSONStorage(() => sessionStorage), // or localStorage
+      partialize: (state) => ({
+        theme: state.theme,
+        fontSize: state.fontSize,
+      }),
+    }
+  )
+);
 ```
 
 ### Using Stores in Components
