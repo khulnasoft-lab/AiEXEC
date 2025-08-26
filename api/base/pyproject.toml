@@ -21,6 +21,7 @@ dependencies = [
     "langchain-core~=0.3.45",
     "langchainhub~=0.1.15",
     "loguru>=0.7.1,<1.0.0",
+    "structlog>=25.4.0",
     "rich>=13.7.0,<14.0.0",
     "langchain-experimental>=0.3.4,<1.0.0",
     "sqlmodel==0.0.22",
@@ -93,7 +94,7 @@ dev = [
     "types-redis>=4.6.0.5",
     "ipykernel>=6.29.0",
     "mypy>=1.11.0",
-    "ruff>=0.6.2",
+    "ruff>=0.12.7",
     "httpx[http2]>=0.27",
     "pytest>=8.2.0",
     "types-requests>=2.32.0",
@@ -221,7 +222,7 @@ build-backend = "hatchling.build"
 
 
 [project.urls]
-Repository = "https://github.com/aiexec-ai/aiexec"
+Repository = "https://github.com/khulnasoft-lab/aiexec"
 Documentation = "https://docs.aiexec.org"
 
 # Optional dependencies for uv

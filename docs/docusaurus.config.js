@@ -349,7 +349,7 @@ const config = {
           // right
           {
             position: "right",
-            href: "https://github.com/aiexec-ai/aiexec",
+            href: "https://github.com/khulnasoft-lab/aiexec",
             className: "header-github-link",
             target: "_blank",
             rel: null,

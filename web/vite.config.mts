@@ -54,7 +54,7 @@ export default defineConfig(({ mode }) => {
         envAiexec.AIEXEC_AUTO_LOGIN ?? true,
       ),
       "process.env.AIEXEC_FEATURE_MCP_COMPOSER": JSON.stringify(
-        envAiexec.AIEXEC_FEATURE_MCP_COMPOSER ?? "false",
+        envAiexec.AIEXEC_FEATURE_MCP_COMPOSER ?? "true",
       ),
     },
     plugins: [react(), svgr(), tsconfigPaths()],

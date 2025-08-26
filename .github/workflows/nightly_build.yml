@@ -12,7 +12,7 @@ env:
 
 jobs:
   create-nightly-tag:
-    if: github.repository == 'aiexec-ai/aiexec'
+    if: github.repository == 'khulnasoft-lab/aiexec'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -125,7 +125,7 @@ jobs:
           fi
 
   frontend-tests:
-    if: github.repository == 'aiexec-ai/aiexec'
+    if: github.repository == 'khulnasoft-lab/aiexec'
     name: Run Frontend Tests
     needs: create-nightly-tag
     uses: ./.github/workflows/typescript_test.yml
@@ -139,7 +139,7 @@ jobs:
       TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
 
   backend-unit-tests:
-    if: github.repository == 'aiexec-ai/aiexec'
+    if: github.repository == 'khulnasoft-lab/aiexec'
     name: Run Backend Unit Tests
     needs: create-nightly-tag
     uses: ./.github/workflows/python_test.yml
@@ -151,7 +151,7 @@ jobs:
 
   # Not making nightly builds dependent on integration test success
   # due to inherent flakiness of 3rd party integrations
-  # Revisit when https://github.com/aiexec-ai/aiexec/pull/3607 is merged.
+  # Revisit when https://github.com/khulnasoft-lab/aiexec/pull/3607 is merged.
   # backend-integration-tests:
   #   name: Run Backend Integration Tests
   #   needs: create-nightly-tag
@@ -161,7 +161,7 @@ jobs:
   #     ref: ${{ needs.create-nightly-tag.outputs.tag }}
 
   release-nightly-build:
-    if: github.repository == 'aiexec-ai/aiexec'
+    if: github.repository == 'khulnasoft-lab/aiexec'
     name: Run Nightly Aiexec Build
     needs: [frontend-tests, backend-unit-tests, create-nightly-tag]
     uses: ./.github/workflows/release_nightly.yml

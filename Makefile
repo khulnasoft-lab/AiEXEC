@@ -1,16 +1,18 @@
-.PHONY: all init format_backend format lint build run_backend dev help tests coverage clean_python_cache clean_npm_cache clean_all
+.PHONY: all init format_backend format lint build run_cli dev help tests coverage clean_python_cache clean_npm_cache clean_all setup_uv add unit_tests unit_tests_looponfail integration_tests integration_tests_no_api_keys integration_tests_api_keys template_tests codespell fix_codespell unsafe_fix run_cli_debug setup_devcontainer setup_env backend build_and_run build_and_install build_aiexec_base build_aiexec_backup build_aiexec docker_build docker_build_backend docker_build_frontend dockerfile_build dockerfile_build_be dockerfile_build_fe clear_dockerimage docker_compose_up docker_compose_down dcdev_up lock_base lock_aiexec lock update publish_base publish_aiexec publish_base_testpypi publish_aiexec_testpypi publish publish_testpypi alembic-revision alembic-upgrade alembic-downgrade alembic-current alembic-history alembic-check alembic-stamp patch locust
 
 # Configurations
-VERSION=$(shell grep "^version" pyproject.toml | sed 's/.*\"\(.*\)\"$$/\1/')
-DOCKERFILE=docker/build_and_push.Dockerfile
-DOCKERFILE_BACKEND=docker/build_and_push_backend.Dockerfile
-DOCKERFILE_FRONTEND=docker/frontend/build_and_push_frontend.Dockerfile
-DOCKER_COMPOSE=docker/example/docker-compose.yml
-PYTHON_REQUIRED=$(shell grep '^requires-python[[:space:]]*=' pyproject.toml | sed -n 's/.*"\([^"]*\)".*/\1/p')
-RED=\033[0;31m
-NC=\033[0m # No Color
-GREEN=\033[0;32m
+VERSION := $(shell grep "^version" pyproject.toml | sed 's/.*"\(.*\)"$$/\1/')
+DOCKERFILE := docker/build_and_push.Dockerfile
+DOCKERFILE_BACKEND := docker/build_and_push_backend.Dockerfile
+DOCKERFILE_FRONTEND := docker/frontend/build_and_push_frontend.Dockerfile
+DOCKER_COMPOSE := docker/example/docker-compose.yml
 
+# Colors
+RED := \033[0;31m
+GREEN := \033[0;32m
+NC := \033[0m # No Color
+
+# Default variables
 log_level ?= debug
 host ?= 0.0.0.0
 port ?= 7860
@@ -21,6 +23,7 @@ workers ?= 1
 async ?= true
 lf ?= false
 ff ?= true
+
 all: help
 
 ######################
@@ -42,7 +45,7 @@ check_tools:
 help: ## show this help message
 	@echo '----'
 	@grep -hE '^\S+:.*##' $(MAKEFILE_LIST) | \
-	awk -F ':.*##' '{printf "\033[36mmake %s\033[0m: %s\n", $$1, $$2}' | \
+	awk -F ':.*##' '{printf "\033[36mmake %-25s\033[0m %s\n", $$1, $$2}' | \
 	column -c2 -t -s :
 	@echo '----'
 	@echo 'For frontend commands, run: make help_frontend'
@@ -51,15 +54,13 @@ help: ## show this help message
 # INSTALL PROJECT
 ######################
 
-reinstall_backend: ## forces reinstall all dependencies (no caching)
+reinstall_backend: check_tools ## forces reinstall all dependencies (no caching)
 	@echo 'Installing backend dependencies'
 	@uv sync -n --reinstall --frozen
 
-install_backend: ## install the backend dependencies
+install_backend: check_tools ## install the backend dependencies
 	@echo 'Installing backend dependencies'
 	@uv sync --frozen --extra "postgresql" $(EXTRA_ARGS)
-
-
 
 init: check_tools ## initialize the project
 	@make install_backend
@@ -71,43 +72,39 @@ init: check_tools ## initialize the project
 # CLEAN PROJECT
 ######################
 
-clean_python_cache:
+clean_python_cache: ## clean python cache
 	@echo "Cleaning Python cache..."
-	find . -type d -name '__pycache__' -exec rm -r {} +
-	find . -type f -name '*.py[cod]' -exec rm -f {} +
-	find . -type f -name '*~' -exec rm -f {} +
-	find . -type f -name '.*~' -exec rm -f {} +
-	$(call CLEAR_DIRS,.mypy_cache )
+	@find . -type d -name '__pycache__' -exec rm -r {} + 
+	@find . -type f -name '*.py[cod]' -exec rm -f {} + 
+	@find . -type f -name '*~' -exec rm -f {} + 
+	@find . -type f -name '.*~' -exec rm -f {} + 
+	@$(call CLEAR_DIRS,.mypy_cache )
 	@echo "$(GREEN)Python cache cleaned.$(NC)"
 
-clean_npm_cache:
+clean_npm_cache: ## clean npm cache
 	@echo "Cleaning npm cache..."
-	cd web && npm cache clean --force
-	$(call CLEAR_DIRS,web/node_modules web/build api/base/aiexec/frontend)
-	rm -f web/package-lock.json
+	@cd web && npm cache clean --force
+	@$(call CLEAR_DIRS,web/node_modules web/build api/base/aiexec/frontend)
+	@rm -f web/package-lock.json
 	@echo "$(GREEN)NPM cache and frontend directories cleaned.$(NC)"
 
-clean_all: clean_python_cache clean_npm_cache # clean all caches and temporary directories
+clean_all: clean_python_cache clean_npm_cache ## clean all caches and temporary directories
 	@echo "$(GREEN)All caches and temporary directories cleaned.$(NC)"
 
 setup_uv: ## install uv using pipx
 	pipx install uv
 
-add:
+add: check_tools ## add dependencies (e.g. make add main=package, make add devel=package, make add base=package)
 	@echo 'Adding dependencies'
 ifdef devel
 	@cd api/base && uv add --group dev $(devel)
 endif
-
 ifdef main
 	@uv add $(main)
 endif
-
 ifdef base
 	@cd api/base && uv add $(base)
 endif
-
-
 
 ######################
 # CODE TESTS
@@ -117,51 +114,30 @@ coverage: ## run the tests and generate a coverage report
 	@uv run coverage run
 	@uv run coverage erase
 
-unit_tests: ## run unit tests
+unit_tests: ## run unit tests (e.g. make unit_tests async=false)
 	@uv sync --frozen
-	@EXTRA_ARGS=""
-	@if [ "$(async)" = "true" ]; then \
-		EXTRA_ARGS="$$EXTRA_ARGS --instafail -n auto"; \
-	fi; \
-	if [ "$(lf)" = "true" ]; then \
-		EXTRA_ARGS="$$EXTRA_ARGS --lf"; \
-	fi; \
-	if [ "$(ff)" = "true" ]; then \
-		EXTRA_ARGS="$$EXTRA_ARGS --ff"; \
-	fi; \
+	@EXTRA_ARGS="--instafail -ra -m 'not api_key_required' --durations-path api/tests/.test_durations --splitting-algorithm least_duration $(args)"
+	@if [ "$(async)" = "true" ]; then EXTRA_ARGS="$$EXTRA_ARGS --instafail -n auto"; fi;
+	@if [ "$(lf)" = "true" ]; then EXTRA_ARGS="$$EXTRA_ARGS --lf"; fi;
+	@if [ "$(ff)" = "true" ]; then EXTRA_ARGS="$$EXTRA_ARGS --ff"; fi;
 	uv run pytest api/tests/unit \
 	--ignore=api/tests/integration \
 	--ignore=api/tests/unit/template \
-	$$EXTRA_ARGS \
-	--instafail -ra -m 'not api_key_required' \
-	--durations-path api/tests/.test_durations \
-	--splitting-algorithm least_duration $(args)
+	$$EXTRA_ARGS
 
-unit_tests_looponfail:
+unit_tests_looponfail: ## run unit tests in a loop on fail
 	@make unit_tests args="-f"
 
-integration_tests:
-	uv run pytest api/tests/integration \
-		--instafail -ra \
-		$(args)
+integration_tests: ## run all integration tests
+	uv run pytest api/tests/integration --instafail -ra $(args)
 
-integration_tests_no_api_keys:
-	uv run pytest api/tests/integration \
-		--instafail -ra -m "not api_key_required" \
-		$(args)
+integration_tests_no_api_keys: ## run integration tests that don't require api keys
+	uv run pytest api/tests/integration --instafail -ra -m "not api_key_required" $(args)
 
-integration_tests_api_keys:
-	uv run pytest api/tests/integration \
-		--instafail -ra -m "api_key_required" \
-		$(args)
+integration_tests_api_keys: ## run integration tests that require api keys
+	uv run pytest api/tests/integration --instafail -ra -m "api_key_required" $(args)
 
-tests: ## run unit, integration, coverage tests
-	@echo 'Running Unit Tests...'
-	make unit_tests
-	@echo 'Running Integration Tests...'
-	make integration_tests
-	@echo 'Running Coverage Tests...'
-	make coverage
+tests: unit_tests integration_tests coverage ## run all tests
 
 ######################
 # TEMPLATE TESTING
@@ -191,13 +167,15 @@ format_frontend_check: ## run biome check without formatting
 	@echo 'Running Biome check on frontend...'
 	@cd web && npx @biomejs/biome check
 
-unsafe_fix:
+unsafe_fix: ## run ruff with unsafe fixes
 	@uv run ruff check . --fix --unsafe-fixes
 
 lint: install_backend ## run linters
 	@uv run mypy --namespace-packages -p "aiexec"
 
-
+######################
+# RUN PROJECT
+######################
 
 run_cli: install_frontend install_backend build_frontend ## run the CLI
 	@echo 'Running the CLI'
@@ -209,80 +187,41 @@ run_cli: install_frontend install_backend build_frontend ## run the CLI
 		$(if $(env),--env-file $(env),) \
 		$(if $(filter false,$(open_browser)),--no-open-browser)
 
-run_cli_debug:
+run_cli_debug: install_frontend build_frontend install_backend ## run the CLI in debug mode
 	@echo 'Running the CLI in debug mode'
-	@make install_frontend > /dev/null
-	@echo 'Building the frontend'
-	@make build_frontend > /dev/null
-	@echo 'Install backend dependencies'
-	@make install_backend > /dev/null
-ifdef env
 	@make start env=$(env) host=$(host) port=$(port) log_level=debug
-else
-	@make start host=$(host) port=$(port) log_level=debug
-endif
 
-
-setup_devcontainer: ## set up the development container
-	make install_backend
-	make install_frontend
-	make build_frontend
+setup_devcontainer: install_backend install_frontend build_frontend ## set up the development container
 	uv run aiexec --frontend-path web/build
 
 setup_env: ## set up the environment
 	@sh ./scripts/setup/setup_env.sh
 
-
-
-
 backend: setup_env install_backend ## run the backend in development mode
-	@-kill -9 $$(lsof -t -i:7860) || true
-ifdef login
-	@echo "Running backend autologin is $(login)";
+	@-kill -9 $$(lsof -t -i:$(port)) || true
+	@echo "Running backend with workers=$(workers) and reload=$(if $(filter-out 1,$(workers)),false,true)"
 	AIEXEC_AUTO_LOGIN=$(login) uv run uvicorn \
 		--factory aiexec.main:create_app \
-		--host 0.0.0.0 \
+		--host $(host) \
 		--port $(port) \
 		$(if $(filter-out 1,$(workers)),, --reload) \
 		--env-file $(env) \
 		--loop asyncio \
 		$(if $(workers),--workers $(workers),)
-else
-	@echo "Running backend respecting the $(env) file";
-	uv run uvicorn \
-		--factory aiexec.main:create_app \
-		--host 0.0.0.0 \
-		--port $(port) \
-		$(if $(filter-out 1,$(workers)),, --reload) \
-		--env-file $(env) \
-		--loop asyncio \
-		$(if $(workers),--workers $(workers),)
-endif
 
-build_and_run: setup_env ## build the project and run it
+build_and_run: setup_env build ## build the project and run it
 	$(call CLEAR_DIRS,dist api/base/dist)
-	make build
 	uv run pip install dist/*.tar.gz
 	uv run aiexec run
 
-build_and_install: ## build the project and install it
+build_and_install: build ## build the project and install it
 	@echo 'Removing dist folder'
 	$(call CLEAR_DIRS,dist api/base/dist)
-	make build && uv run pip install dist/*.whl && pip install api/base/dist/*.whl --force-reinstall
+	uv run pip install dist/*.whl && pip install api/base/dist/*.whl --force-reinstall
 
-build: setup_env ## build the frontend static files and package the project
-ifdef base
-	make install_frontendci
-	make build_frontend
-	make build_aiexec_base args="$(args)"
-endif
-
-ifdef main
-	make install_frontendci
-	make build_frontend
-	make build_aiexec_base args="$(args)"
-	make build_aiexec args="$(args)"
-endif
+build: setup_env install_frontendci build_frontend ## build the frontend static files and package the project
+	@make build_aiexec_base args="$(args)"
+	@make build_aiexec args="$(args)"
 
 build_aiexec_base:
 	cd api/base && uv build $(args)
@@ -298,6 +237,9 @@ ifdef restore
 	mv uv.lock.bak uv.lock
 endif
 
+######################
+# DOCKER
+######################
 
 docker_build: dockerfile_build clear_dockerimage ## build DockerFile
 
@@ -331,18 +273,22 @@ clear_dockerimage:
 		docker rmi $$(docker images -f "dangling=true" -q); \
 	fi
 
-docker_compose_up: docker_build docker_compose_down
+docker_compose_up: docker_build docker_compose_down ## run docker compose up
 	@echo 'Running docker compose up'
 	docker compose -f $(DOCKER_COMPOSE) up --remove-orphans
 
-docker_compose_down:
+docker_compose_down: ## run docker compose down
 	@echo 'Running docker compose down'
 	docker compose -f $(DOCKER_COMPOSE) down || true
 
-dcdev_up:
+dcdev_up: ## run dev docker compose up
 	@echo 'Running docker compose up'
 	docker compose -f docker/dev.docker-compose.yml down || true
 	docker compose -f docker/dev.docker-compose.yml up --remove-orphans
+
+######################
+# DEPENDENCY MANAGEMENT
+######################
 
 lock_base:
 	cd api/base && uv lock
@@ -350,10 +296,7 @@ lock_base:
 lock_aiexec:
 	uv lock
 
-lock: ## lock dependencies
-	@echo 'Locking dependencies'
-	cd api/base && uv lock
-	uv lock
+lock: lock_base lock_aiexec ## lock dependencies
 
 update: ## update dependencies
 	@echo 'Updating dependencies'
@@ -367,31 +310,38 @@ publish_aiexec:
 	uv publish
 
 publish_base_testpypi:
-	# TODO: update this to use the test-pypi repository
 	cd api/base && uv publish -r test-pypi
 
 publish_aiexec_testpypi:
-	# TODO: update this to use the test-pypi repository
 	uv publish -r test-pypi
 
-publish: ## build the frontend static files and package the project and publish it to PyPI
+publish: ## publish the project to PyPI (e.g. make publish target=base/main)
 	@echo 'Publishing the project'
-ifdef base
+ifeq ($(target),base)
 	make publish_base
-endif
-
-ifdef main
+else ifeq ($(target),main)
 	make publish_aiexec
+else
+	@echo "Usage: make publish target=[base|main]"
 endif
 
-publish_testpypi: ## build the frontend static files and package the project and publish it to PyPI
-	@echo 'Publishing the project'
+publish_testpypi: ## publish the project to TestPyPI (e.g. make publish_testpypi target=base/main)
+	@echo 'Publishing the project to TestPyPI'
+ifeq ($(target),base)
+	make publish_base_testpypi
+else ifeq ($(target),main)
+	make publish_aiexec_testpypi
+else
+	@echo "Usage: make publish_testpypi target=[base|main]"
+endif
 
-# example make alembic-revision message="Add user table"
-alembic-revision: ## generate a new migration
+######################
+# DATABASE MIGRATIONS
+######################
+
+alembic-revision: ## generate a new migration (e.g. make alembic-revision message="Add user table")
 	@echo 'Generating a new Alembic revision'
 	cd api/base/aiexec/ && uv run alembic revision --autogenerate -m "$(message)"
-
 
 alembic-upgrade: ## upgrade database to the latest version
 	@echo 'Upgrading database to the latest version'
@@ -413,7 +363,7 @@ alembic-check: ## check migration status
 	@echo 'Running alembic check'
 	cd api/base/aiexec/ && uv run alembic check
 
-alembic-stamp: ## stamp the database with a specific revision
+alembic-stamp: ## stamp the database with a specific revision (e.g. make alembic-stamp revision=<revision_id>)
 	@echo 'Stamping the database with revision $(revision)'
 	cd api/base/aiexec/ && uv run alembic stamp $(revision)
 
@@ -422,65 +372,7 @@ alembic-stamp: ## stamp the database with a specific revision
 ######################
 
 patch: ## Update version across all projects. Usage: make patch v=1.5.0
-	@if [ -z "$(v)" ]; then \
-		echo "$(RED)Error: Version argument required.$(NC)"; \
-		echo "Usage: make patch v=1.5.0"; \
-		exit 1; \
-	fi; \
-	echo "$(GREEN)Updating version to $(v)$(NC)"; \
-	\
-	AIEXEC_VERSION="$(v)"; \
-	AIEXEC_BASE_VERSION=$$(echo "$$AIEXEC_VERSION" | sed -E 's/^[0-9]+\.(.*)$$/0.\1/'); \
-	\
-	echo "$(GREEN)Aiexec version: $$AIEXEC_VERSION$(NC)"; \
-	echo "$(GREEN)Aiexec-base version: $$AIEXEC_BASE_VERSION$(NC)"; \
-	\
-	echo "$(GREEN)Updating main pyproject.toml...$(NC)"; \
-	python -c "import re; fname='pyproject.toml'; txt=open(fname).read(); txt=re.sub(r'^version = \".*\"', 'version = \"$$AIEXEC_VERSION\"', txt, flags=re.MULTILINE); txt=re.sub(r'\"aiexec-base==.*\"', '\"aiexec-base==$$AIEXEC_BASE_VERSION\"', txt); open(fname, 'w').write(txt)"; \
-	\
-	echo "$(GREEN)Updating aiexec-base pyproject.toml...$(NC)"; \
-	python -c "import re; fname='api/base/pyproject.toml'; txt=open(fname).read(); txt=re.sub(r'^version = \".*\"', 'version = \"$$AIEXEC_BASE_VERSION\"', txt, flags=re.MULTILINE); open(fname, 'w').write(txt)"; \
-	\
-	echo "$(GREEN)Updating frontend package.json...$(NC)"; \
-	python -c "import re; fname='web/package.json'; txt=open(fname).read(); txt=re.sub(r'\"version\": \".*\"', '\"version\": \"$$AIEXEC_VERSION\"', txt); open(fname, 'w').write(txt)"; \
-	\
-	echo "$(GREEN)Validating version changes...$(NC)"; \
-	if ! grep -q "^version = \"$$AIEXEC_VERSION\"" pyproject.toml; then echo "$(RED)✗ Main pyproject.toml version validation failed$(NC)"; exit 1; fi; \
-	if ! grep -q "\"aiexec-base==$$AIEXEC_BASE_VERSION\"" pyproject.toml; then echo "$(RED)✗ Main pyproject.toml aiexec-base dependency validation failed$(NC)"; exit 1; fi; \
-	if ! grep -q "^version = \"$$AIEXEC_BASE_VERSION\"" api/base/pyproject.toml; then echo "$(RED)✗ Aiexec-base pyproject.toml version validation failed$(NC)"; exit 1; fi; \
-	if ! grep -q "\"version\": \"$$AIEXEC_VERSION\"" web/package.json; then echo "$(RED)✗ Frontend package.json version validation failed$(NC)"; exit 1; fi; \
-	echo "$(GREEN)✓ All versions updated successfully$(NC)"; \
-	\
-	echo "$(GREEN)Syncing dependencies in parallel...$(NC)"; \
-	uv sync --quiet & \
-	(cd web && npm install --silent) & \
-	wait; \
-	\
-	echo "$(GREEN)Validating final state...$(NC)"; \
-	CHANGED_FILES=$$(git status --porcelain | wc -l | tr -d ' '); \
-	if [ "$$CHANGED_FILES" -lt 5 ]; then \
-		echo "$(RED)✗ Expected at least 5 changed files, but found $$CHANGED_FILES$(NC)"; \
-		echo "$(RED)Changed files:$(NC)"; \
-		git status --porcelain; \
-		exit 1; \
-	fi; \
-	EXPECTED_FILES="pyproject.toml uv.lock api/base/pyproject.toml web/package.json web/package-lock.json"; \
-	for file in $$EXPECTED_FILES; do \
-		if ! git status --porcelain | grep -q "$$file"; then \
-			echo "$(RED)✗ Expected file $$file was not modified$(NC)"; \
-			exit 1; \
-		fi; \
-	done; \
-	echo "$(GREEN)✓ All required files were modified.$(NC)"; \
-	\
-	echo "$(GREEN)Version update complete!$(NC)"; \
-	echo "$(GREEN)Updated files:$(NC)"; \
-	echo "  - pyproject.toml: $$AIEXEC_VERSION"; \
-	echo "  - api/base/pyproject.toml: $$AIEXEC_BASE_VERSION"; \
-	echo "  - web/package.json: $$AIEXEC_VERSION"; \
-	echo "  - uv.lock: dependency lock updated"; \
-	echo "  - web/package-lock.json: dependency lock updated"; \
-	echo "$(GREEN)Dependencies synced successfully!$(NC)"
+	@uv run python scripts/update_version.py $(v)
 
 ######################
 # LOAD TESTING
@@ -499,10 +391,10 @@ locust_min_wait ?= 2000
 locust_max_wait ?= 5000
 locust_request_timeout ?= 30.0
 
-locust: ## run locust load tests (options: locust_users=10 locust_spawn_rate=1 locust_host=http://localhost:7860 locust_headless=true locust_time=300s locust_api_key=your-api-key locust_flow_id=your-flow-id locust_file=api/tests/locust/locustfile.py locust_min_wait=2000 locust_max_wait=5000 locust_request_timeout=30.0)
+locust: ## run locust load tests (see Makefile for options)
 	@if [ ! -f "$(locust_file)" ]; then \
 		echo "$(RED)Error: Locustfile not found at $(locust_file)$(NC)"; \
-		exit 1; \
+		exit 1;
 	fi
 	@echo "Starting Locust with $(locust_users) users, spawn rate of $(locust_spawn_rate)"
 	@echo "Testing host: $(locust_host)"
@@ -526,7 +418,7 @@ locust: ## run locust load tests (options: locust_users=10 locust_spawn_rate=1 l
 		uv run locust \
 			-u $(locust_users) \
 			-r $(locust_spawn_rate) \
-			--host $(locust_host) \
+			--host $(locost_host) \
 			-f $$(basename "$(locust_file)"); \
 	fi
 

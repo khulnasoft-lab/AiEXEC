@@ -100,6 +100,11 @@ module.exports = {
         "Configuration/configuration-global-variables",
         "Configuration/environment-variables",
         {
+          type: "doc",
+          id: "Configuration/security-best-practices",
+          label: "Security best practices"
+        },
+        {
           type: "category",
           label: "Storage and memory",
           items: [

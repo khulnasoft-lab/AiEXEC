@@ -88,8 +88,8 @@ ENV PATH="/app/.venv/bin:$PATH"
 LABEL org.opencontainers.image.title=aiexec
 LABEL org.opencontainers.image.authors=['Aiexec']
 LABEL org.opencontainers.image.licenses=MIT
-LABEL org.opencontainers.image.url=https://github.com/aiexec-ai/aiexec
-LABEL org.opencontainers.image.source=https://github.com/aiexec-ai/aiexec
+LABEL org.opencontainers.image.url=https://github.com/khulnasoft-lab/aiexec
+LABEL org.opencontainers.image.source=https://github.com/khulnasoft-lab/aiexec
 
 USER user
 WORKDIR /app

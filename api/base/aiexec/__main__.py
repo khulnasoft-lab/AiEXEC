@@ -589,7 +589,7 @@ def print_banner(host: str, port: int, protocol: str) -> None:
         status_icon = "🟢"
 
     info_text = (
-        f"{github_icon} GitHub: Star for updates {arrow} https://github.com/aiexec-ai/aiexec\n"
+        f"{github_icon} GitHub: Star for updates {arrow} https://github.com/khulnasoft-lab/aiexec\n"
         f"{discord_icon} Discord: Join for support {arrow} https://discord.com/invite/EqksyE2EX9"
     )
     telemetry_text = (
@@ -616,7 +616,7 @@ def print_banner(host: str, port: int, protocol: str) -> None:
         # Fallback to a simpler banner without emojis for Windows systems with encoding issues
         fallback_message = (
             f"Welcome to {package_name}\n\n"
-            "* GitHub: https://github.com/aiexec-ai/aiexec\n"
+            "* GitHub: https://github.com/khulnasoft-lab/aiexec\n"
             "# Discord: https://discord.com/invite/EqksyE2EX9\n\n"
             f"{telemetry_text}\n\n"
             f"[OK] Open Aiexec -> {protocol}://{access_host}:{port}"
@@ -627,7 +627,7 @@ def print_banner(host: str, port: int, protocol: str) -> None:
         except UnicodeEncodeError:
             # Last resort: use logger instead of print
             logger.info(f"Welcome to {package_name}")
-            logger.info("GitHub: https://github.com/aiexec-ai/aiexec")
+            logger.info("GitHub: https://github.com/khulnasoft-lab/aiexec")
             logger.info("Discord: https://discord.com/invite/EqksyE2EX9")
             logger.info(f"Open Aiexec: {protocol}://{access_host}:{port}")
 

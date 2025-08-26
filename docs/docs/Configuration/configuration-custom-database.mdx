@@ -34,7 +34,7 @@ Aiexec can more efficiently handle multiple users and larger workloads by using 
     touch .env
     ```
 
-    You can use the [`.env.example`](https://github.com/aiexec-ai/aiexec/blob/main/.env.example) file in the Aiexec repository as a template for your own `.env` file.
+    You can use the [`.env.example`](https://github.com/khulnasoft-lab/aiexec/blob/main/.env.example) file in the Aiexec repository as a template for your own `.env` file.
 
 4. In your `.env` file, set `AIEXEC_DATABASE_URL` to your PostgreSQL connection string:
 
@@ -55,7 +55,7 @@ Aiexec can more efficiently handle multiple users and larger workloads by using 
 ## Deploy Aiexec and PostgreSQL containers with docker-compose.yml
 
 Launching Aiexec and PostgreSQL containers in the same Docker network ensures proper connectivity between services.
-For an example, see the [`docker-compose.yml`](https://github.com/aiexec-ai/aiexec/blob/main/docker_example/docker-compose.yml) file in the Aiexec repository.
+For an example, see the [`docker-compose.yml`](https://github.com/khulnasoft-lab/aiexec/blob/main/docker_example/docker-compose.yml) file in the Aiexec repository.
 
 The configuration in the example `docker-compose.yml` also sets up persistent volumes for both Aiexec and PostgreSQL data.
 Persistent volumes map directories inside of containers to storage on the host machine, so data persists through container restarts.

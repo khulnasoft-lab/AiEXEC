@@ -4,10 +4,27 @@
 
 This security policy applies to all public projects under the aiexec-ai organization on GitHub. We prioritize security and continuously work to safeguard our systems. However, vulnerabilities can still exist. If you identify a security issue, please report it to us so we can address it promptly.
 
-### Security/Bugfix Versions
+### Security Measures
 
-- Fixes are released either as part of the next minor version (e.g., 1.3.0 → 1.4.0) or as an on-demand patch version (e.g., 1.3.0 → 1.3.1)
-- Security fixes are given priority and might be enough to cause a new version to be released
+1. **Automated Security Scanning**
+   - Code is automatically scanned for vulnerabilities using Bandit and Safety
+   - Dependencies are regularly checked for known vulnerabilities
+   - Pre-commit hooks enforce security checks before code is committed
+
+2. **Security/Bugfix Versions**
+   - Fixes are released either as part of the next minor version (e.g., 1.3.0 → 1.4.0) or as an on-demand patch version (e.g., 1.3.0 → 1.3.1)
+   - Security fixes are given priority and might be enough to cause a new version to be released
+   - Critical security updates are backported to the last stable release when possible
+
+3. **Dependency Management**
+   - All dependencies are pinned to specific versions
+   - Regular dependency updates are performed with security checks
+   - Automatic dependency updates are monitored and reviewed
+
+4. **Secure Development Practices**
+   - Code reviews are required for all changes
+   - Security-focused code reviews for sensitive areas
+   - Regular security training for core contributors
 
 ## Reporting a Vulnerability
 
@@ -15,7 +32,7 @@ We encourage responsible disclosure of security vulnerabilities. If you find som
 
 ### How to Report
 
-Use the "Report a vulnerability" button under the "Security" tab of the [Aiexec GitHub repository](https://github.com/aiexec-ai/aiexec/security). This creates a private communication channel between you and the maintainers.
+Use the "Report a vulnerability" button under the "Security" tab of the [Aiexec GitHub repository](https://github.com/khulnasoft-lab/aiexec/security). This creates a private communication channel between you and the maintainers.
 
 ### Reporting Guidelines
 
@@ -39,6 +56,42 @@ Use the "Report a vulnerability" button under the "Security" tab of the [Aiexec 
   - Details about Aiexec employees, contractors, or partners
 
 We appreciate your efforts in helping us maintain a secure platform and look forward to working together to resolve any issues responsibly.
+
+## Security Tools and Configuration
+
+### Automated Security Scanning
+
+Our CI/CD pipeline includes the following security checks:
+
+1. **Bandit** - Static code analysis for common security issues in Python code
+   - Configuration: `.bandit.yml`
+   - Runs on every pull request and push to main branches
+
+2. **Safety** - Checks Python dependencies for known security vulnerabilities
+   - Scans all installed packages against a database of known vulnerabilities
+   - Fails the build if critical vulnerabilities are found
+
+3. **Pre-commit Hooks**
+   - Detects AWS credentials and private keys before commit
+   - Runs security checks on staged files
+   - Prevents committing sensitive information
+
+### Secure Development Guidelines
+
+1. **Authentication & Authorization**
+   - Always use the latest authentication mechanisms
+   - Implement principle of least privilege
+   - Validate all user inputs
+
+2. **Data Protection**
+   - Encrypt sensitive data at rest and in transit
+   - Use environment variables for secrets
+   - Never commit secrets to version control
+
+3. **Dependencies**
+   - Regularly update dependencies
+   - Audit third-party code
+   - Prefer well-maintained packages
 
 ## Known Vulnerabilities
 

@@ -7,7 +7,7 @@ on:
         description: "Python Versions"
         required: false
         type: string
-        default: "['3.10']"
+        default: "['3.12']"
       frontend-tests-folder:
         description: "Frontend Tests Folder"
         required: false
@@ -36,7 +36,7 @@ on:
         description: "Python Versions"
         required: false
         type: string
-        default: "['3.10']"
+        default: "['3.12']"
   pull_request:
     types: [synchronize, labeled]
   merge_group:
@@ -45,10 +45,14 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-  STORE_API_KEY: ${{ secrets.STORE_API_KEY }}
-  TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+  # All sensitive keys are now managed through GitHub Secrets
+  # Add them in your repository settings under:
+  # Settings -> Secrets and variables -> Actions -> Repository secrets
+  # Required secrets:
+  # - OPENAI_API_KEY
+  # - ANTHROPIC_API_KEY
+  # - STORE_API_KEY
+  # - TAVILY_API_KEY
 
 jobs:
   check-nightly-status:

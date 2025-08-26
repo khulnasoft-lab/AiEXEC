@@ -4,7 +4,7 @@ services:
     name: aiexec
     runtime: docker
     dockerfilePath: ./docker/render.Dockerfile
-    repo: https://github.com/aiexec-ai/aiexec
+    repo: https://github.com/khulnasoft-lab/aiexec
     branch: main
     plan: standard
     healthCheckPath: /health_check

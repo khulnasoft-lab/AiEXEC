@@ -12,7 +12,7 @@ This guide will help you get AiExec up and running using Docker and Docker Compo
 1. Clone the AiExec repository:
 
    ```sh
-   git clone https://github.com/aiexec-ai/aiexec.git
+   git clone https://github.com/khulnasoft-lab/aiexec.git
    ```
 
 2. Navigate to the `docker_example` directory:
