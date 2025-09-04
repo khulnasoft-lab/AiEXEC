@@ -1,5 +1,4 @@
-"""
-Project management tools for Aiexec MCP Server.
+"""Project management tools for Aiexec MCP Server.
 
 This module provides separate tools for each project operation:
 - create_project: Create a new project

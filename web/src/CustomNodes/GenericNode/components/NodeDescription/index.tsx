@@ -192,6 +192,13 @@ export default function NodeDescription({
             placeholderClassName,
           )}
           onDoubleClick={handleDoubleClickFn}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              handleDoubleClickFn();
+            }
+          }}
         >
           {renderedDescription}
         </div>

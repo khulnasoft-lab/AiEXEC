@@ -1,18 +1,15 @@
-"""
-Centralized timeout configuration for MCP Server.
+"""Centralized timeout configuration for MCP Server.
 
 Provides consistent timeout values across all tools.
 """
 
 import os
-from typing import Optional
 
 import httpx
 
 
 def get_default_timeout() -> httpx.Timeout:
-    """
-    Get default timeout configuration from environment or defaults.
+    """Get default timeout configuration from environment or defaults.
 
     Environment variables:
     - MCP_REQUEST_TIMEOUT: Total request timeout in seconds (default: 30)
@@ -32,8 +29,7 @@ def get_default_timeout() -> httpx.Timeout:
 
 
 def get_polling_timeout() -> httpx.Timeout:
-    """
-    Get timeout configuration for polling operations.
+    """Get timeout configuration for polling operations.
 
     Polling operations may need longer timeouts.
 
@@ -49,8 +45,7 @@ def get_polling_timeout() -> httpx.Timeout:
 
 
 def get_max_polling_attempts() -> int:
-    """
-    Get maximum number of polling attempts.
+    """Get maximum number of polling attempts.
 
     Returns:
         Maximum polling attempts (default: 30)
@@ -63,8 +58,7 @@ def get_max_polling_attempts() -> int:
 
 
 def get_polling_interval(attempt: int) -> float:
-    """
-    Get polling interval with exponential backoff.
+    """Get polling interval with exponential backoff.
 
     Args:
         attempt: Current attempt number (0-based)

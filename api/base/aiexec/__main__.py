@@ -2,6 +2,7 @@ import asyncio
 import inspect
 import os
 import platform
+import shutil
 import signal
 import socket
 import sys
@@ -13,7 +14,9 @@ from pathlib import Path
 
 import click
 import httpx
+import pyperclip
 import typer
+import uvicorn
 from dotenv import load_dotenv
 from fastapi import HTTPException
 from httpx import HTTPError
@@ -21,6 +24,7 @@ from jose import JWTError
 from multiprocess import cpu_count
 from multiprocess.context import Process
 from packaging import version as pkg_version
+from platformdirs import user_cache_dir
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
@@ -31,7 +35,12 @@ from aiexec.cli.progress import create_aiexec_progress
 from aiexec.initial_setup.setup import get_or_create_default_folder
 from aiexec.logging.logger import configure, logger
 from aiexec.main import setup_app
-from aiexec.services.auth.utils import check_key, get_current_user_by_jwt
+from aiexec.server import AiexecApplication
+from aiexec.services.auth.utils import check_key, create_super_user, get_current_user_by_jwt
+from aiexec.services.database.models.api_key.crud import create_api_key, delete_api_key
+from aiexec.services.database.models.api_key.model import ApiKey, ApiKeyCreate
+from aiexec.services.database.models.user.crud import get_all_superusers
+from aiexec.services.database.models.user.model import User
 from aiexec.services.deps import get_db_service, get_settings_service, session_scope
 from aiexec.services.settings.constants import DEFAULT_SUPERUSER, DEFAULT_SUPERUSER_PASSWORD
 from aiexec.services.utils import initialize_services
@@ -139,8 +148,6 @@ def set_var_for_macos_issue() -> None:
     # otherwise we get an error when running gunicorn
 
     if platform.system() == "Darwin":
-        import os
-
         os.environ["OBJC_DISABLE_INITIALIZE_FORK_SAFETY"] = "YES"
         # https://stackoverflow.com/questions/75747888/uwsgi-segmentation-fault-with-flask-python-app-behind-nginx-after-running-for-2 # noqa: E501
         os.environ["no_proxy"] = "*"  # to avoid error with gunicorn
@@ -341,8 +348,6 @@ def run(
     # Step 6: Launching Aiexec
     if platform.system() == "Windows":
         with progress.step(6):
-            import uvicorn
-
             # Print summary and banner before starting the server, since uvicorn is a blocking call.
             # We _may_ be able to subprocess, but with window's spawn behavior, we'd have to move all
             # non-picklable code to the subprocess.
@@ -362,8 +367,6 @@ def run(
     else:
         with progress.step(6):
             # Use Gunicorn with AiexecUvicornWorker for non-Windows systems
-            from aiexec.server import AiexecApplication
-
             options = {
                 "bind": f"{host}:{port}",
                 "workers": get_number_of_workers(workers),
@@ -575,8 +578,6 @@ def print_banner(host: str, port: int, protocol: str) -> None:
     title = f"[bold]Welcome to {styled_package_name}[/bold]\n"
 
     # Use Windows-safe characters to prevent encoding issues
-    import platform
-
     if platform.system() == "Windows":
         github_icon = "*"
         discord_icon = "#"
@@ -677,8 +678,6 @@ async def _create_superuser(username: str, password: str, auth_token: str | None
         if not password:
             password = typer.prompt("Password", hide_input=True)
 
-    from aiexec.services.database.models.user.crud import get_all_superusers
-
     existing_superusers = []
     async with session_scope() as session:
         # Note that the default superuser is created by the initialize_services() function,
@@ -737,12 +736,8 @@ async def _create_superuser(username: str, password: str, auth_token: str | None
 
     # Auth complete, create the superuser
     async with session_scope() as session:
-        from aiexec.services.auth.utils import create_super_user
-
         if await create_super_user(db=session, username=username, password=password):
             # Verify that the superuser was created
-            from aiexec.services.database.models.user.model import User
-
             stmt = select(User).where(User.username == username)
             created_user: User = (await session.exec(stmt)).first()
             if created_user is None or not created_user.is_superuser:
@@ -781,10 +776,6 @@ def copy_db() -> None:
     Returns:
         None
     """
-    import shutil
-
-    from platformdirs import user_cache_dir
-
     cache_dir = Path(user_cache_dir("aiexec"))
     db_path = cache_dir / "aiexec.db"
     pre_db_path = cache_dir / "aiexec-pre.db"
@@ -853,8 +844,6 @@ def api_key(
             return None
 
         async with session_scope() as session:
-            from aiexec.services.database.models.user.model import User
-
             stmt = select(User).where(User.username == DEFAULT_SUPERUSER)
             superuser = (await session.exec(stmt)).first()
             if not superuser:
@@ -862,9 +851,6 @@ def api_key(
                     "Default superuser not found. This command requires a superuser and AUTO_LOGIN to be enabled."
                 )
                 return None
-            from aiexec.services.database.models.api_key.crud import create_api_key, delete_api_key
-            from aiexec.services.database.models.api_key.model import ApiKey, ApiKeyCreate
-
             stmt = select(ApiKey).where(ApiKey.user_id == superuser.id)
             api_key = (await session.exec(stmt)).first()
             if api_key:
@@ -907,8 +893,6 @@ def version_option(
 
 def api_key_banner(unmasked_api_key) -> None:
     is_mac = platform.system() == "Darwin"
-    import pyperclip
-
     pyperclip.copy(unmasked_api_key.api_key)
     panel = Panel(
         f"[bold]API Key Created Successfully:[/bold]\n\n"

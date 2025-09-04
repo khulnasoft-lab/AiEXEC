@@ -1,12 +1,11 @@
-"""
-Centralized error handling utilities for MCP Server.
+"""Centralized error handling utilities for MCP Server.
 
 Provides consistent error formatting and helpful context for clients.
 """
 
 import json
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 import httpx
 
@@ -20,12 +19,11 @@ class MCPErrorFormatter:
     def format_error(
         error_type: str,
         message: str,
-        details: Optional[Dict[str, Any]] = None,
-        suggestion: Optional[str] = None,
-        http_status: Optional[int] = None,
+        details: dict[str, Any] | None = None,
+        suggestion: str | None = None,
+        http_status: int | None = None,
     ) -> str:
-        """
-        Format an error response with consistent structure.
+        """Format an error response with consistent structure.
 
         Args:
             error_type: Category of error (e.g., "connection_error", "validation_error")
@@ -37,7 +35,7 @@ class MCPErrorFormatter:
         Returns:
             JSON string with structured error information
         """
-        error_response: Dict[str, Any] = {
+        error_response: dict[str, Any] = {
             "success": False,
             "error": {
                 "type": error_type,
@@ -58,8 +56,7 @@ class MCPErrorFormatter:
 
     @staticmethod
     def from_http_error(response: httpx.Response, operation: str) -> str:
-        """
-        Format error from HTTP response.
+        """Format error from HTTP response.
 
         Args:
             response: The HTTP response object
@@ -100,9 +97,8 @@ class MCPErrorFormatter:
         )
 
     @staticmethod
-    def from_exception(exception: Exception, operation: str, context: Optional[Dict[str, Any]] = None) -> str:
-        """
-        Format error from exception.
+    def from_exception(exception: Exception, operation: str, context: dict[str, Any] | None = None) -> str:
+        """Format error from exception.
 
         Args:
             exception: The exception that occurred
@@ -135,20 +131,20 @@ class MCPErrorFormatter:
             error_type = "missing_data"
             suggestion = "The response format may have changed. Check for API updates"
 
-        details: Dict[str, Any] = {"exception_type": type(exception).__name__, "exception_message": str(exception)}
+        details: dict[str, Any] = {"exception_type": type(exception).__name__, "exception_message": str(exception)}
 
         if context:
             details["context"] = context
 
         return MCPErrorFormatter.format_error(
             error_type=error_type,
-            message=f"Failed to {operation}: {str(exception)}",
+            message=f"Failed to {operation}: {exception!s}",
             details=details,
             suggestion=suggestion,
         )
 
 
-def _get_suggestion_for_status(status_code: int) -> Optional[str]:
+def _get_suggestion_for_status(status_code: int) -> str | None:
     """Get helpful suggestion based on HTTP status code."""
     suggestions = {
         400: "Check that all required parameters are provided and valid",

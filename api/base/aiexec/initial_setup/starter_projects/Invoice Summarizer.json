@@ -305,7 +305,7 @@
             "legacy": false,
             "lf_version": "1.1.5",
             "metadata": {
-              "code_hash": "6f74e04e39d5",
+              "code_hash": "43f179f3b6c7",
               "module": "aiexec.components.input_output.chat_output.ChatOutput"
             },
             "minimized": true,
@@ -669,7 +669,7 @@
             "key": "needle",
             "legacy": false,
             "metadata": {
-              "code_hash": "57d868cb067b",
+              "code_hash": "d41113950930",
               "module": "aiexec.components.needle.needle.NeedleComponent"
             },
             "minimized": false,
@@ -877,7 +877,7 @@
             "key": "ChatInput",
             "legacy": false,
             "metadata": {
-              "code_hash": "192913db3453",
+              "code_hash": "b6d8ec6a9054",
               "module": "aiexec.components.input_output.chat.ChatInput"
             },
             "minimized": true,

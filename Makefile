@@ -74,10 +74,10 @@ init: check_tools ## initialize the project
 
 clean_python_cache: ## clean python cache
 	@echo "Cleaning Python cache..."
-	@find . -type d -name '__pycache__' -exec rm -r {} + 
-	@find . -type f -name '*.py[cod]' -exec rm -f {} + 
-	@find . -type f -name '*~' -exec rm -f {} + 
-	@find . -type f -name '.*~' -exec rm -f {} + 
+	@find . -type d -name '__pycache__' -exec rm -r {} +
+	@find . -type f -name '*.py[cod]' -exec rm -f {} +
+	@find . -type f -name '*~' -exec rm -f {} +
+	@find . -type f -name '.*~' -exec rm -f {} +
 	@$(call CLEAR_DIRS,.mypy_cache )
 	@echo "$(GREEN)Python cache cleaned.$(NC)"
 
@@ -392,10 +392,7 @@ locust_max_wait ?= 5000
 locust_request_timeout ?= 30.0
 
 locust: ## run locust load tests (see Makefile for options)
-	@if [ ! -f "$(locust_file)" ]; then \
-		echo "$(RED)Error: Locustfile not found at $(locust_file)$(NC)"; \
-		exit 1;
-	fi
+	@[ ! -f "$(locust_file)" ] && (echo "$(RED)Error: Locustfile not found at $(locust_file)$(NC)"; exit 1) || true
 	@echo "Starting Locust with $(locust_users) users, spawn rate of $(locust_spawn_rate)"
 	@echo "Testing host: $(locust_host)"
 	@echo "Using locustfile: $(locust_file)"
@@ -406,21 +403,13 @@ locust: ## run locust load tests (see Makefile for options)
 	export MAX_WAIT=$(locust_max_wait) && \
 	export REQUEST_TIMEOUT=$(locust_request_timeout) && \
 	cd $$(dirname "$(locust_file)") && \
-	if [ "$(locust_headless)" = "true" ]; then \
-		uv run locust \
-			--headless \
-			-u $(locust_users) \
-			-r $(locust_spawn_rate) \
-			--run-time $(locust_time) \
-			--host $(locust_host) \
-			-f $$(basename "$(locust_file)"); \
-	else \
-		uv run locust \
-			-u $(locust_users) \
-			-r $(locust_spawn_rate) \
-			--host $(locost_host) \
-			-f $$(basename "$(locust_file)"); \
-	fi
+	uv run locust \
+		--headless \
+		-u $(locust_users) \
+		-r $(locust_spawn_rate) \
+		--run-time $(locust_time) \
+		--host $(locust_host) \
+		-f $$(basename "$(locust_file)")
 
 ######################
 # INCLUDE FRONTEND MAKEFILE

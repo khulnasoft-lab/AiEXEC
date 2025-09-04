@@ -42,7 +42,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=api/base/pyproject.toml,target=api/base/pyproject.toml \
     uv sync --frozen --no-install-project --no-editable --extra couchbase --extra cassio --extra local --extra clickhouse-connect --extra nv-ingest --extra postgresql
 
-COPY ./src /app/src
+COPY ./api /app/src
 
 COPY web /tmp/web
 WORKDIR /tmp/web

@@ -108,7 +108,7 @@
             "legacy": false,
             "lf_version": "1.5.0.post1",
             "metadata": {
-              "code_hash": "efdcba3771af",
+              "code_hash": "ca5cb64f127f",
               "module": "aiexec.components.input_output.text.TextInputComponent"
             },
             "minimized": false,
@@ -225,7 +225,7 @@
             "legacy": false,
             "lf_version": "1.5.0.post1",
             "metadata": {
-              "code_hash": "6f74e04e39d5",
+              "code_hash": "43f179f3b6c7",
               "module": "aiexec.components.input_output.chat_output.ChatOutput"
             },
             "minimized": true,
@@ -532,7 +532,7 @@
             "last_updated": "2025-08-14T17:19:22.182Z",
             "legacy": false,
             "metadata": {
-              "code_hash": "ee2b66958f09",
+              "code_hash": "eb890c0d3220",
               "module": "aiexec.components.data.kb_retrieval.KBRetrievalComponent"
             },
             "minimized": false,

@@ -1,12 +1,12 @@
 from datetime import datetime, timezone
 
 import pytest
-from httpx import AsyncClient
 from aiexec.services.auth.utils import create_super_user, get_password_hash
 from aiexec.services.database.models.user import UserUpdate
 from aiexec.services.database.models.user.model import User
 from aiexec.services.database.utils import session_getter
 from aiexec.services.deps import get_db_service, get_settings_service
+from httpx import AsyncClient
 from sqlmodel import select
 
 

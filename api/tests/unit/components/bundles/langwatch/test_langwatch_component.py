@@ -5,11 +5,11 @@ from unittest.mock import Mock, patch
 import httpx
 import pytest
 import respx
-from httpx import Response
 from aiexec.base.langwatch.utils import get_cached_evaluators
 from aiexec.components.langwatch.langwatch import LangWatchComponent
 from aiexec.schema.data import Data
 from aiexec.schema.dotdict import dotdict
+from httpx import Response
 
 from tests.base import ComponentTestBaseWithoutClient
 

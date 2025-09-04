@@ -205,10 +205,7 @@ class ElasticsearchVectorStoreComponent(LCVectorStoreComponent):
                 elif search_type == "mmr":
                     results = vector_store.max_marginal_relevance_search(query, **search_kwargs)
             except Exception as e:
-                msg = (
-                    "Error occurred while querying the Elasticsearch VectorStore,"
-                    " there is no Data into the VectorStore."
-                )
+                msg = "Error occurred while querying the Elasticsearch VectorStore, there is no Data into the VectorStore."
                 self.log(msg)
                 raise ValueError(msg) from e
             return [

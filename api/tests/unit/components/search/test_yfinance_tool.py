@@ -1,10 +1,10 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from langchain_core.tools import ToolException
 from aiexec.components.yahoosearch.yahoo import YahooFinanceMethod, YfinanceComponent
 from aiexec.custom.utils import build_custom_component_template
 from aiexec.schema import Data
+from langchain_core.tools import ToolException
 
 
 class TestYfinanceComponent:

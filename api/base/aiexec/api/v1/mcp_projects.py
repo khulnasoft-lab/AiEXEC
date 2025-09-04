@@ -136,7 +136,7 @@ async def list_project_tools(
 
 
 @router.head("/{project_id}/sse", response_class=HTMLResponse, include_in_schema=False)
-async def im_alive():
+async def im_alive(project_id):
     return Response()
 
 

@@ -1,6 +1,6 @@
 {
   "name": "aiexec",
-  "version": "1.5.0",
+  "version": "0.5.0",
   "private": true,
   "dependencies": {
     "@chakra-ui/number-input": "^2.1.2",

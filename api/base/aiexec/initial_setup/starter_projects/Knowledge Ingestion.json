@@ -88,7 +88,7 @@
             "legacy": false,
             "lf_version": "1.5.0.post1",
             "metadata": {
-              "code_hash": "dbf2e9d2319d",
+              "code_hash": "72fdf1672b44",
               "module": "aiexec.components.processing.split_text.SplitTextComponent"
             },
             "minimized": false,
@@ -339,7 +339,7 @@
             "legacy": false,
             "lf_version": "1.5.0.post1",
             "metadata": {
-              "code_hash": "a81817a7f244",
+              "code_hash": "463320d831d2",
               "module": "aiexec.components.data.url.URLComponent"
             },
             "minimized": false,
@@ -702,7 +702,7 @@
             "last_updated": "2025-08-13T19:45:49.122Z",
             "legacy": false,
             "metadata": {
-              "code_hash": "11df19de541d",
+              "code_hash": "30907cba4b56",
               "module": "aiexec.components.data.kb_ingest.KBIngestionComponent"
             },
             "minimized": false,

@@ -129,7 +129,7 @@ class AnthropicModelComponent(LCModelComponent):
                 model_with_tool = ChatAnthropic(
                     model=model,  # Use the current model being checked
                     anthropic_api_key=self.api_key,
-                    anthropic_api_url=cast(str, self.base_url) or DEFAULT_ANTHROPIC_API_URL,
+                    anthropic_api_url=cast("str", self.base_url) or DEFAULT_ANTHROPIC_API_URL,
                 )
 
                 if (

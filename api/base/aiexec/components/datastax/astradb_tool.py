@@ -142,8 +142,7 @@ class AstraDBToolComponent(LCToolComponent):
         ),
         DictInput(
             name="tool_params",
-            info="DEPRECATED: Attributes to filter and description to the model. "
-            "Add ! for mandatory (e.g: !customerId)",
+            info="DEPRECATED: Attributes to filter and description to the model. Add ! for mandatory (e.g: !customerId)",
             display_name="Tool params",
             is_list=True,
             advanced=True,

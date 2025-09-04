@@ -320,7 +320,7 @@
             "legacy": false,
             "lf_version": "1.2.0",
             "metadata": {
-              "code_hash": "192913db3453",
+              "code_hash": "b6d8ec6a9054",
               "module": "aiexec.components.input_output.chat.ChatInput"
             },
             "output_types": [],
@@ -794,7 +794,7 @@
             "legacy": false,
             "lf_version": "1.1.1",
             "metadata": {
-              "code_hash": "dbf2e9d2319d",
+              "code_hash": "72fdf1672b44",
               "module": "aiexec.components.processing.split_text.SplitTextComponent"
             },
             "output_types": [],
@@ -1083,7 +1083,7 @@
             "legacy": false,
             "lf_version": "1.1.1",
             "metadata": {
-              "code_hash": "6f74e04e39d5",
+              "code_hash": "43f179f3b6c7",
               "module": "aiexec.components.input_output.chat_output.ChatOutput"
             },
             "output_types": [],
@@ -1400,7 +1400,7 @@
             "legacy": false,
             "lf_version": "1.2.0",
             "metadata": {
-              "code_hash": "2691dee277c9",
+              "code_hash": "90b6d679bf7b",
               "module": "aiexec.components.openai.openai.OpenAIEmbeddingsComponent"
             },
             "output_types": [],
@@ -1936,7 +1936,7 @@
             "legacy": false,
             "lf_version": "1.1.1",
             "metadata": {
-              "code_hash": "2691dee277c9",
+              "code_hash": "90b6d679bf7b",
               "module": "aiexec.components.openai.openai.OpenAIEmbeddingsComponent"
             },
             "output_types": [],
@@ -2709,7 +2709,7 @@
             "icon": "AstraDB",
             "legacy": false,
             "metadata": {
-              "code_hash": "38a337e89ff4",
+              "code_hash": "6c553d0292cd",
               "module": "aiexec.components.vectorstores.astradb.AstraDBVectorStoreComponent"
             },
             "minimized": false,
@@ -3485,7 +3485,7 @@
             "icon": "AstraDB",
             "legacy": false,
             "metadata": {
-              "code_hash": "38a337e89ff4",
+              "code_hash": "6c553d0292cd",
               "module": "aiexec.components.vectorstores.astradb.AstraDBVectorStoreComponent"
             },
             "minimized": false,

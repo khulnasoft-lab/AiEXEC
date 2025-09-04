@@ -41,6 +41,16 @@ export default function ErrorAlert({
             removeAlert(id);
           }, 500);
         }}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            setShow(false);
+            setTimeout(() => {
+              removeAlert(id);
+            }, 500);
+          }
+        }}
         className="error-build-message noflow nowheel nopan nodelete nodrag"
       >
         <div className="flex">

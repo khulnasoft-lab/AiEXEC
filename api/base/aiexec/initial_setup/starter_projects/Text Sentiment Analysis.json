@@ -713,7 +713,7 @@
             "icon": "MessagesSquare",
             "legacy": false,
             "metadata": {
-              "code_hash": "6f74e04e39d5",
+              "code_hash": "43f179f3b6c7",
               "module": "aiexec.components.input_output.chat_output.ChatOutput"
             },
             "minimized": true,
@@ -1024,7 +1024,7 @@
             "icon": "MessagesSquare",
             "legacy": false,
             "metadata": {
-              "code_hash": "6f74e04e39d5",
+              "code_hash": "43f179f3b6c7",
               "module": "aiexec.components.input_output.chat_output.ChatOutput"
             },
             "minimized": true,

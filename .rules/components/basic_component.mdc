@@ -19,12 +19,12 @@ This guide provides comprehensive instructions for creating robust, maintainable
 Before implementation, gather these details:
 
 #### Core Information
-- **Component Name**: 
+- **Component Name**:
   - Use PascalCase (e.g., `ImageProcessor`, `DataValidator`)
   - Be specific and descriptive
   - Suffix with `Component` in code (e.g., `ImageProcessorComponent`)
 
-- **Description**: 
+- **Description**:
   - Start with a verb (e.g., "Processes images...", "Validates data...")
   - Be concise but comprehensive
   - Mention any dependencies or requirements
@@ -70,7 +70,7 @@ class TextCleanerComponent(Component):
     """
     Cleans and normalizes text input by removing extra whitespace,
     special characters, and optionally converting to lowercase.
-    
+
     Example Usage:
     - Clean user input before processing
     - Normalize text for NLP tasks
@@ -81,7 +81,7 @@ class TextCleanerComponent(Component):
     icon = "type"
     name = "TextCleaner"
     version = "1.0.0"
-    
+
     inputs = [
         StringInput(
             name="text",
@@ -102,7 +102,7 @@ class TextCleanerComponent(Component):
             default=True
         )
     ]
-    
+
     outputs = [
         Output(
             name="cleaned_text",
@@ -113,23 +113,23 @@ class TextCleanerComponent(Component):
             )
         )
     ]
-    
+
     async def run(self) -> Dict[str, Any]:
         text = self.get_input("text")
         to_lowercase = self.get_input("to_lowercase")
         remove_special = self.get_input("remove_special_chars")
-        
+
         # Clean whitespace
         cleaned = " ".join(text.split())
-        
+
         # Convert to lowercase if needed
         if to_lowercase:
             cleaned = cleaned.lower()
-            
+
         # Remove special characters if needed
         if remove_special:
             cleaned = re.sub(r'[^\w\s]', '', cleaned)
-            
+
         return {"cleaned_text": cleaned}
 ```
 
@@ -144,7 +144,7 @@ from aiexec.components.fields import StringInput, NumberInput, Output, DropdownI
 class WeatherAPIClient(Component):
     """
     Fetches weather data from a public weather API.
-    
+
     This component demonstrates:
     - Making HTTP requests to external APIs
     - Handling API keys and authentication
@@ -156,7 +156,7 @@ class WeatherAPIClient(Component):
     icon = "cloud"
     name = "WeatherAPI"
     version = "1.0.0"
-    
+
     inputs = [
         StringInput(
             name="api_key",
@@ -185,7 +185,7 @@ class WeatherAPIClient(Component):
             default="metric"
         )
     ]
-    
+
     outputs = [
         Output(
             name="weather_data",
@@ -204,7 +204,7 @@ class WeatherAPIClient(Component):
             )
         )
     ]
-    
+
     async def run(self) -> Dict[str, Any]:
         base_url = "https://api.openweathermap.org/data/2.5/weather"
         params = {
@@ -212,13 +212,13 @@ class WeatherAPIClient(Component):
             "appid": self.get_input("api_key"),
             "units": self.get_input("units")
         }
-        
+
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(base_url, params=params)
                 response.raise_for_status()
                 data = response.json()
-                
+
                 return {
                     "weather_data": (
                         f"Weather in {data['name']}: {data['weather'][0]['description']}"
@@ -228,7 +228,7 @@ class WeatherAPIClient(Component):
                     ),
                     "temperature": data['main']['temp']
                 }
-                
+
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 401:
                 raise ValueError("Invalid API key")
@@ -252,7 +252,7 @@ import torch
 class SentimentAnalyzerComponent(Component):
     """
     Analyzes sentiment of input text using a pre-trained model.
-    
+
     This component demonstrates:
     - Loading and using Hugging Face models
     - GPU acceleration when available
@@ -264,15 +264,15 @@ class SentimentAnalyzerComponent(Component):
     icon = "smile"
     name = "SentimentAnalyzer"
     version = "1.0.1"
-    
+
     # Model cache to avoid reloading
     _model = None
     _tokenizer = None
-    
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.device = 0 if torch.cuda.is_available() else -1  # Use GPU if available
-        
+
     @classmethod
     def get_model(cls):
         """Singleton pattern to load model only once."""
@@ -281,7 +281,7 @@ class SentimentAnalyzerComponent(Component):
             cls._tokenizer = AutoTokenizer.from_pretrained(model_name)
             cls._model = AutoModelForSequenceClassification.from_pretrained(model_name)
         return cls._model, cls._tokenizer
-    
+
     inputs = [
         StringInput(
             name="text",
@@ -297,7 +297,7 @@ class SentimentAnalyzerComponent(Component):
             default="false"
         )
     ]
-    
+
     outputs = [
         Output(
             name="sentiment",
@@ -316,7 +316,7 @@ class SentimentAnalyzerComponent(Component):
             )
         )
     ]
-    
+
     async def run(self) -> Dict[str, Any]:
         model, tokenizer = self.get_model()
         classifier = pipeline(
@@ -325,12 +325,12 @@ class SentimentAnalyzerComponent(Component):
             tokenizer=tokenizer,
             device=self.device
         )
-        
+
         result = classifier(
             self.get_input("text"),
             return_all_scores=(self.get_input("return_all_scores") == "true")
         )
-        
+
         return {
             "sentiment": str(result[0]["label"] if isinstance(result[0], list) else result[0]["label"]),
             "scores": str(result)
@@ -355,7 +355,7 @@ from aiexec.components.fields import (
 class YourComponentName(Component):
     """
     Brief one-line description.
-    
+
     Detailed description including:
     - Purpose and functionality
     - Input/Output specifications
@@ -366,13 +366,13 @@ class YourComponentName(Component):
     display_name = "User-Friendly Name"
     description = "Detailed description of what the component does."
     icon = "icon-name"  # From Lucide icons or custom icons
-    
+
     # Internal name (used in code)
     name = "YourComponentName"
-    
+
     # Versioning
     version = "1.0.0"
-    
+
     # Input definitions
     inputs = [
         StringInput(
@@ -388,7 +388,7 @@ class YourComponentName(Component):
         ),
         # Add more inputs as needed
     ]
-    
+
     # Output definitions
     outputs = [
         Output(
@@ -403,28 +403,28 @@ class YourComponentName(Component):
             ]
         )
     ]
-    
+
     # Optional: Define component categories for organization
     categories = ["data_processing", "utilities"]
-    
+
     # Main execution method
     async def execute(self, **inputs) -> Dict[str, Any]:
         """
         Main execution logic for the component.
-        
+
         Args:
             **inputs: Dictionary of input values
-            
+
         Returns:
             Dict containing output values
-            
+
         Raises:
             ComponentError: For expected error cases
         """
         try:
             # Your implementation here
             result = self._process_inputs(inputs)
-            
+
             # Return outputs matching the defined schema
             return {
                 "output_name": {
@@ -433,7 +433,7 @@ class YourComponentName(Component):
                     "metadata": {}
                 }
             }
-            
+
         except Exception as e:
             # Log error and re-raise with context
             self.logger.error(f"Error in {self.name}: {str(e)}")
@@ -442,7 +442,7 @@ class YourComponentName(Component):
                 details=str(e),
                 error_type="processing_error"
             )
-    
+
     # Helper methods (prefixed with _)
     def _process_inputs(self, inputs: Dict[str, Any]) -> Any:
         """Process and validate inputs."""
@@ -476,17 +476,17 @@ class YourComponentName(Component):
 ```python
 class StatefulComponent(Component):
     # ... other definitions ...
-    
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._state = {}
-    
+
     async def execute(self, **inputs):
         # Access and update state
         if "counter" not in self._state:
             self._state["counter"] = 0
         self._state["counter"] += 1
-        
+
         return {"count": self._state["counter"]}
 ```
 
@@ -494,7 +494,7 @@ class StatefulComponent(Component):
 ```python
 class AsyncAPICallComponent(Component):
     # ... other definitions ...
-    
+
     async def execute(self, **inputs):
         async with aiohttp.ClientSession() as session:
             async with session.get("https://api.example.com/data") as response:
@@ -506,7 +506,7 @@ class AsyncAPICallComponent(Component):
 ```python
 class FileProcessorComponent(Component):
     # ... other definitions ...
-    
+
     inputs = [
         FileInput(
             name="input_file",
@@ -516,7 +516,7 @@ class FileProcessorComponent(Component):
             file_types=["txt", "csv", "json"]
         )
     ]
-    
+
     async def execute(self, input_file: bytes, **kwargs):
         # Process file content
         result = self._process_file(input_file)
@@ -530,7 +530,7 @@ class FileProcessorComponent(Component):
 class ConditionalRouterComponent(Component):
     """
     Routes an input message to different outputs based on conditions.
-    
+
     This component evaluates input conditions and routes the data to the
     appropriate output based on the first matching condition.
     """
@@ -539,7 +539,7 @@ class ConditionalRouterComponent(Component):
     icon = "route"
     name = "ConditionalRouter"
     version = "1.0.0"
-    
+
     inputs = [
         StringInput(
             name="input_value",
@@ -565,7 +565,7 @@ class ConditionalRouterComponent(Component):
             default="default"
         )
     ]
-    
+
     outputs = [
         Output(
             name="output",
@@ -583,7 +583,7 @@ class ConditionalRouterComponent(Component):
             ]
         )
     ]
-    
+
     async def execute(self, input_value: str, conditions: list, default_output: str, **kwargs):
         """Evaluate conditions and route the input accordingly."""
         try:
@@ -595,14 +595,14 @@ class ConditionalRouterComponent(Component):
                             "output_value": condition["output"]
                         }
                     }
-            
+
             return {
                 "output": {
                     "matched_condition": "default",
                     "output_value": default_output
                 }
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error in ConditionalRouter: {str(e)}")
             raise ComponentError(
@@ -610,7 +610,7 @@ class ConditionalRouterComponent(Component):
                 details=str(e),
                 error_type="evaluation_error"
             )
-    
+
     def _evaluate_condition(self, value: str, condition: str) -> bool:
         """Evaluate a single condition."""
         # Implement condition evaluation logic
@@ -626,7 +626,7 @@ import pytz
 class CurrentDateComponent(Component):
     """
     Returns the current date and time in the specified timezone.
-    
+
     This component provides the current date and time in various formats
     and timezones for use in workflows.
     """
@@ -635,7 +635,7 @@ class CurrentDateComponent(Component):
     icon = "clock"
     name = "CurrentDate"
     version = "1.0.0"
-    
+
     inputs = [
         DropdownInput(
             name="timezone",
@@ -657,7 +657,7 @@ class CurrentDateComponent(Component):
             required=False
         )
     ]
-    
+
     outputs = [
         Output(
             name="datetime",
@@ -685,13 +685,13 @@ class CurrentDateComponent(Component):
             ]
         )
     ]
-    
+
     async def execute(self, timezone: str, format: str, **kwargs):
         """Get current datetime in the specified timezone and format."""
         try:
             # Get current time in UTC
             now = datetime.utcnow().replace(tzinfo=pytz.utc)
-            
+
             # Convert to target timezone
             if timezone.lower() != "utc":
                 try:
@@ -700,10 +700,10 @@ class CurrentDateComponent(Component):
                 except pytz.exceptions.UnknownTimeZoneError:
                     self.logger.warning(f"Unknown timezone: {timezone}, using UTC")
                     timezone = "UTC"
-            
+
             # Format the datetime
             formatted = now.strftime(format)
-            
+
             return {
                 "datetime": {
                     "iso_format": now.isoformat(),
@@ -712,7 +712,7 @@ class CurrentDateComponent(Component):
                     "timezone": timezone
                 }
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error in CurrentDate: {str(e)}")
             raise ComponentError(
@@ -797,12 +797,12 @@ class TestYourComponent:
     @pytest.fixture
     def component(self):
         return YourComponent()
-    
+
     def test_success_case(self, component):
         # Test successful execution
         result = component.execute(input1="test")
         assert result == expected_output
-    
+
     def test_error_handling(self, component):
         # Test error conditions
         with pytest.raises(ComponentError):

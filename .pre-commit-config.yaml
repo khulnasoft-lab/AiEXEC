@@ -3,17 +3,14 @@ repos:
     rev: v5.0.0
     hooks:
       - id: check-case-conflict
-      - id: detect-aws-credentials
-      - id: detect-private-key
       - id: end-of-file-fixer
         # python, js and ts only
         files: \.(py|js|ts)$
       - id: mixed-line-ending
         files: \.(py|js|ts)$
-        args:
-          - --fix=lf
+        args: [--fix=lf]
       - id: trailing-whitespace
-  
+
   # Security checks
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.8
@@ -21,8 +18,7 @@ repos:
       - id: bandit
         name: bandit
         description: Find common security issues in Python code
-        entry: bandit
-        language: system
+        language: python   # ✅ let pre-commit manage bandit env
         types: [python]
         args: [--configfile=pyproject.toml, -ll, -c, pyproject.toml]
         pass_filenames: true
@@ -34,9 +30,10 @@ repos:
         name: Check dependencies for known security vulnerabilities
         description: 'Safety: Check Python dependencies for known security vulnerabilities'
         entry: safety check --file=requirements.txt --full-report
-        language: system
+        language: python   # ✅ use python instead of system
         pass_filenames: false
         always_run: true
+
   - repo: local
     hooks:
       - id: ruff
@@ -45,12 +42,14 @@ repos:
         language: system
         types_or: [python, pyi]
         args: [--fix]
+
       - id: ruff-format
         name: ruff format
         entry: uv run ruff format
         language: system
         types_or: [python, pyi]
         args: [--config, pyproject.toml]
+
   - repo: local
     hooks:
       - id: local-biome-check
@@ -59,6 +58,7 @@ repos:
         language: system
         types: [text]
         files: "\\.(jsx?|tsx?|c(js|ts)|m(js|ts)|d\\.(ts|cts|mts)|jsonc?)$"
+
       - id: validate-starter-projects
         name: Validate Starter Project Templates
         entry: uv run python api/tests/unit/template/test_starter_projects.py

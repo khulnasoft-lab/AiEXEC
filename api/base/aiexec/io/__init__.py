@@ -1,4 +1,3 @@
-# noqa: A005
 from aiexec.inputs import (
     BoolInput,
     CodeInput,

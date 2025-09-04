@@ -6,8 +6,6 @@ from datetime import datetime
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from anyio import Path
-from httpx import AsyncClient
 from aiexec.custom.directory_reader.utils import abuild_custom_component_list_from_path
 from aiexec.initial_setup.constants import STARTER_FOLDER_NAME
 from aiexec.initial_setup.setup import (
@@ -22,6 +20,8 @@ from aiexec.services.auth.utils import create_super_user
 from aiexec.services.database.models import Flow
 from aiexec.services.database.models.folder.model import Folder
 from aiexec.services.deps import get_settings_service, session_scope
+from anyio import Path
+from httpx import AsyncClient
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
 

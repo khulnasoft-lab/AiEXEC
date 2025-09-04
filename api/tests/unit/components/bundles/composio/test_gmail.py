@@ -1,9 +1,9 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from composio import Action
 from aiexec.components.composio.gmail_composio import ComposioGmailAPIComponent
 from aiexec.schema.dataframe import DataFrame
+from composio import Action
 
 from tests.base import DID_NOT_EXIST, ComponentTestBaseWithoutClient
 

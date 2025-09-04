@@ -1,5 +1,4 @@
-"""
-Simple document management tools for Aiexec MCP Server.
+"""Simple document management tools for Aiexec MCP Server.
 
 Provides separate, focused tools for each document operation.
 Supports various document types including specs, designs, notes, and PRPs.
@@ -7,12 +6,11 @@ Supports various document types including specs, designs, notes, and PRPs.
 
 import json
 import logging
-from typing import Any, Optional, Dict, List
+from typing import Any
 from urllib.parse import urljoin
 
 import httpx
 from mcp.server.fastmcp import Context, FastMCP
-
 from src.mcp_server.utils.error_handling import MCPErrorFormatter
 from src.mcp_server.utils.timeout_config import get_default_timeout
 from src.server.config.service_discovery import get_api_url
@@ -29,12 +27,11 @@ def register_document_tools(mcp: FastMCP):
         project_id: str,
         title: str,
         document_type: str,
-        content: Optional[Dict[str, Any]] = None,
-        tags: Optional[List[str]] = None,
-        author: Optional[str] = None,
+        content: dict[str, Any] | None = None,
+        tags: list[str] | None = None,
+        author: str | None = None,
     ) -> str:
-        """
-        Create a new document with automatic versioning.
+        """Create a new document with automatic versioning.
 
         Args:
             project_id: Project UUID (required)
@@ -108,27 +105,25 @@ def register_document_tools(mcp: FastMCP):
 
                 if response.status_code == 200:
                     result = response.json()
-                    return json.dumps({
-                        "success": True,
-                        "document": result.get("document"),
-                        "document_id": result.get("document", {}).get("id"),
-                        "message": result.get("message", "Document created successfully"),
-                    })
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "create document")
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "document": result.get("document"),
+                            "document_id": result.get("document", {}).get("id"),
+                            "message": result.get("message", "Document created successfully"),
+                        }
+                    )
+                return MCPErrorFormatter.from_http_error(response, "create document")
 
         except httpx.RequestError as e:
-            return MCPErrorFormatter.from_exception(
-                e, "create document", {"project_id": project_id, "title": title}
-            )
+            return MCPErrorFormatter.from_exception(e, "create document", {"project_id": project_id, "title": title})
         except Exception as e:
             logger.error(f"Error creating document: {e}", exc_info=True)
             return MCPErrorFormatter.from_exception(e, "create document")
 
     @mcp.tool()
     async def list_documents(ctx: Context, project_id: str) -> str:
-        """
-        List all documents for a project.
+        """List all documents for a project.
 
         Args:
             project_id: Project UUID (required)
@@ -146,19 +141,19 @@ def register_document_tools(mcp: FastMCP):
             async with httpx.AsyncClient(timeout=timeout) as client:
                 # Pass include_content=False for lightweight response
                 response = await client.get(
-                    urljoin(api_url, f"/api/projects/{project_id}/docs"),
-                    params={"include_content": False}
+                    urljoin(api_url, f"/api/projects/{project_id}/docs"), params={"include_content": False}
                 )
 
                 if response.status_code == 200:
                     result = response.json()
-                    return json.dumps({
-                        "success": True,
-                        "documents": result.get("documents", []),
-                        "count": len(result.get("documents", [])),
-                    })
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "list documents")
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "documents": result.get("documents", []),
+                            "count": len(result.get("documents", [])),
+                        }
+                    )
+                return MCPErrorFormatter.from_http_error(response, "list documents")
 
         except httpx.RequestError as e:
             return MCPErrorFormatter.from_exception(e, "list documents", {"project_id": project_id})
@@ -168,8 +163,7 @@ def register_document_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def get_document(ctx: Context, project_id: str, doc_id: str) -> str:
-        """
-        Get detailed information about a specific document.
+        """Get detailed information about a specific document.
 
         Args:
             project_id: Project UUID (required)
@@ -186,27 +180,22 @@ def register_document_tools(mcp: FastMCP):
             timeout = get_default_timeout()
 
             async with httpx.AsyncClient(timeout=timeout) as client:
-                response = await client.get(
-                    urljoin(api_url, f"/api/projects/{project_id}/docs/{doc_id}")
-                )
+                response = await client.get(urljoin(api_url, f"/api/projects/{project_id}/docs/{doc_id}"))
 
                 if response.status_code == 200:
                     document = response.json()
                     return json.dumps({"success": True, "document": document})
-                elif response.status_code == 404:
+                if response.status_code == 404:
                     return MCPErrorFormatter.format_error(
                         error_type="not_found",
                         message=f"Document {doc_id} not found",
                         suggestion="Verify the document ID is correct and exists in this project",
                         http_status=404,
                     )
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "get document")
+                return MCPErrorFormatter.from_http_error(response, "get document")
 
         except httpx.RequestError as e:
-            return MCPErrorFormatter.from_exception(
-                e, "get document", {"project_id": project_id, "doc_id": doc_id}
-            )
+            return MCPErrorFormatter.from_exception(e, "get document", {"project_id": project_id, "doc_id": doc_id})
         except Exception as e:
             logger.error(f"Error getting document: {e}", exc_info=True)
             return MCPErrorFormatter.from_exception(e, "get document")
@@ -216,13 +205,12 @@ def register_document_tools(mcp: FastMCP):
         ctx: Context,
         project_id: str,
         doc_id: str,
-        title: Optional[str] = None,
-        content: Optional[Dict[str, Any]] = None,
-        tags: Optional[List[str]] = None,
-        author: Optional[str] = None,
+        title: str | None = None,
+        content: dict[str, Any] | None = None,
+        tags: list[str] | None = None,
+        author: str | None = None,
     ) -> str:
-        """
-        Update a document's properties.
+        """Update a document's properties.
 
         Args:
             project_id: Project UUID (required)
@@ -244,7 +232,7 @@ def register_document_tools(mcp: FastMCP):
             timeout = get_default_timeout()
 
             # Build update fields
-            update_fields: Dict[str, Any] = {}
+            update_fields: dict[str, Any] = {}
             if title is not None:
                 update_fields["title"] = title
             if content is not None:
@@ -262,26 +250,24 @@ def register_document_tools(mcp: FastMCP):
 
                 if response.status_code == 200:
                     result = response.json()
-                    return json.dumps({
-                        "success": True,
-                        "document": result.get("document"),
-                        "message": result.get("message", "Document updated successfully"),
-                    })
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "update document")
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "document": result.get("document"),
+                            "message": result.get("message", "Document updated successfully"),
+                        }
+                    )
+                return MCPErrorFormatter.from_http_error(response, "update document")
 
         except httpx.RequestError as e:
-            return MCPErrorFormatter.from_exception(
-                e, "update document", {"project_id": project_id, "doc_id": doc_id}
-            )
+            return MCPErrorFormatter.from_exception(e, "update document", {"project_id": project_id, "doc_id": doc_id})
         except Exception as e:
             logger.error(f"Error updating document: {e}", exc_info=True)
             return MCPErrorFormatter.from_exception(e, "update document")
 
     @mcp.tool()
     async def delete_document(ctx: Context, project_id: str, doc_id: str) -> str:
-        """
-        Delete a document.
+        """Delete a document.
 
         Args:
             project_id: Project UUID (required)
@@ -298,30 +284,27 @@ def register_document_tools(mcp: FastMCP):
             timeout = get_default_timeout()
 
             async with httpx.AsyncClient(timeout=timeout) as client:
-                response = await client.delete(
-                    urljoin(api_url, f"/api/projects/{project_id}/docs/{doc_id}")
-                )
+                response = await client.delete(urljoin(api_url, f"/api/projects/{project_id}/docs/{doc_id}"))
 
                 if response.status_code == 200:
                     result = response.json()
-                    return json.dumps({
-                        "success": True,
-                        "message": result.get("message", f"Document {doc_id} deleted successfully"),
-                    })
-                elif response.status_code == 404:
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "message": result.get("message", f"Document {doc_id} deleted successfully"),
+                        }
+                    )
+                if response.status_code == 404:
                     return MCPErrorFormatter.format_error(
                         error_type="not_found",
                         message=f"Document {doc_id} not found",
                         suggestion="Verify the document ID is correct and exists in this project",
                         http_status=404,
                     )
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "delete document")
+                return MCPErrorFormatter.from_http_error(response, "delete document")
 
         except httpx.RequestError as e:
-            return MCPErrorFormatter.from_exception(
-                e, "delete document", {"project_id": project_id, "doc_id": doc_id}
-            )
+            return MCPErrorFormatter.from_exception(e, "delete document", {"project_id": project_id, "doc_id": doc_id})
         except Exception as e:
             logger.error(f"Error deleting document: {e}", exc_info=True)
             return MCPErrorFormatter.from_exception(e, "delete document")

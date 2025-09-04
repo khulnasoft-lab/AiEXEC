@@ -40,6 +40,7 @@ from aiexec.graph.graph.base import Graph
 from aiexec.graph.schema import RunOutputs
 from aiexec.helpers.flow import get_flow_by_id_or_endpoint_name
 from aiexec.helpers.user import get_user_by_flow_id_or_endpoint_name
+from aiexec.interface.components import get_and_cache_all_types_dict
 from aiexec.interface.initialize.loading import update_params_with_load_from_db_fields
 from aiexec.processing.process import process_tweaks, run_graph_internal
 from aiexec.schema.graph import Tweaks
@@ -66,8 +67,6 @@ async def get_all():
 
     Returns a compressed response containing all available component types.
     """
-    from aiexec.interface.components import get_and_cache_all_types_dict
-
     try:
         all_types = await get_and_cache_all_types_dict(settings_service=get_settings_service())
         # Return compressed response using our utility function

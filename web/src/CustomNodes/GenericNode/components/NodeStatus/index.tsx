@@ -445,6 +445,13 @@ export default function NodeStatus({
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleClickRun}
             className="-m-0.5"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                handleClickRun();
+              }
+            }}
           >
             <Button unstyled className="nodrag button-run-bg group">
               <div data-testid={`button_run_` + display_name.toLowerCase()}>

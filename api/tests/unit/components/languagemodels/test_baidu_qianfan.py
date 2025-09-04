@@ -1,9 +1,9 @@
 import os
 
 import pytest
+from aiexec.components.baidu.baidu_qianfan_chat import QianfanChatEndpointComponent
 from langchain.schema import HumanMessage
 from langchain_community.chat_models.baidu_qianfan_endpoint import QianfanChatEndpoint
-from aiexec.components.baidu.baidu_qianfan_chat import QianfanChatEndpointComponent
 from qianfan.errors import APIError
 
 

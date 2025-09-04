@@ -6,9 +6,9 @@ import json
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
+from aiexec.components.google.google_bq_sql_executor import BigQueryExecutorComponent
 from google.auth.exceptions import RefreshError
 from google.oauth2.service_account import Credentials
-from aiexec.components.google.google_bq_sql_executor import BigQueryExecutorComponent
 from pandas import DataFrame
 
 from tests.base import ComponentTestBaseWithoutClient
