@@ -4,11 +4,11 @@ from pathlib import Path
 from textwrap import dedent
 
 import pytest
-from langchain_core.documents import Document
 from aiexec.custom import Component, CustomComponent
 from aiexec.custom.code_parser.code_parser import CodeParser, CodeSyntaxError
 from aiexec.custom.custom_component.base_component import BaseComponent, ComponentCodeNullError
 from aiexec.custom.utils import build_custom_component_template
+from langchain_core.documents import Document
 
 
 @pytest.fixture

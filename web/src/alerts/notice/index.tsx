@@ -44,6 +44,13 @@ export default function NoticeAlert({
     >
       <div
         onClick={handleClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            handleClick();
+          }
+        }}
         className="noflow nowheel nopan nodelete nodrag mt-6 w-96 rounded-md bg-info-background p-4 shadow-xl"
       >
         <div className="flex">

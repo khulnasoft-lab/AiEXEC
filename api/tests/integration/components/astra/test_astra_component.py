@@ -1,12 +1,12 @@
 import os
 
 import pytest
-from astrapy import DataAPIClient
-from langchain_astradb import AstraDBVectorStore, VectorServiceOptions
-from langchain_core.documents import Document
 from aiexec.components.openai.openai import OpenAIEmbeddingsComponent
 from aiexec.components.vectorstores import AstraDBVectorStoreComponent
 from aiexec.schema.data import Data
+from astrapy import DataAPIClient
+from langchain_astradb import AstraDBVectorStore, VectorServiceOptions
+from langchain_core.documents import Document
 
 from tests.api_keys import get_astradb_api_endpoint, get_astradb_application_token, get_openai_api_key
 from tests.integration.components.mock_components import TextToData

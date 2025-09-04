@@ -2,12 +2,12 @@ import asyncio
 import inspect
 from typing import Any
 
-from anyio import Path
-from fastapi import status
-from httpx import AsyncClient
 from aiexec.api.v1.schemas import UpdateCustomComponentRequest
 from aiexec.components.agents.agent import AgentComponent
 from aiexec.custom.utils import build_custom_component_template
+from anyio import Path
+from fastapi import status
+from httpx import AsyncClient
 
 
 async def test_get_version(client: AsyncClient):

@@ -2,8 +2,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-from fastapi import status
-from httpx import AsyncClient
 from aiexec.api.v1.mcp_projects import (
     get_project_mcp_server,
     get_project_sse,
@@ -16,6 +14,8 @@ from aiexec.services.database.models.flow import Flow
 from aiexec.services.database.models.folder import Folder
 from aiexec.services.database.models.user import User
 from aiexec.services.deps import session_scope
+from fastapi import status
+from httpx import AsyncClient
 from mcp.server.sse import SseServerTransport
 
 # Mark all tests in this module as asyncio

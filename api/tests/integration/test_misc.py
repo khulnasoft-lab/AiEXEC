@@ -1,11 +1,11 @@
 from uuid import uuid4
 
 import pytest
-from fastapi import status
-from httpx import AsyncClient
 from aiexec.graph.schema import RunOutputs
 from aiexec.initial_setup.setup import load_starter_projects
 from aiexec.load.load import arun_flow_from_json
+from fastapi import status
+from httpx import AsyncClient
 
 
 @pytest.mark.api_key_required

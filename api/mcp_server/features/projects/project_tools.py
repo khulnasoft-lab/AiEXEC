@@ -1,5 +1,4 @@
-"""
-Simple project management tools for Aiexec MCP Server.
+"""Simple project management tools for Aiexec MCP Server.
 
 Provides separate, focused tools for each project operation.
 No complex PRP examples - just straightforward project management.
@@ -8,12 +7,10 @@ No complex PRP examples - just straightforward project management.
 import asyncio
 import json
 import logging
-from typing import Any, Optional
 from urllib.parse import urljoin
 
 import httpx
 from mcp.server.fastmcp import Context, FastMCP
-
 from src.mcp_server.utils.error_handling import MCPErrorFormatter
 from src.mcp_server.utils.timeout_config import (
     get_default_timeout,
@@ -34,10 +31,9 @@ def register_project_tools(mcp: FastMCP):
         ctx: Context,
         title: str,
         description: str = "",
-        github_repo: Optional[str] = None,
+        github_repo: str | None = None,
     ) -> str:
-        """
-        Create a new project with automatic AI assistance.
+        """Create a new project with automatic AI assistance.
 
         The project creation starts a background process that generates PRP documentation
         and initial tasks based on the title and description.
@@ -96,29 +92,25 @@ def register_project_tools(mcp: FastMCP):
                                 await asyncio.sleep(sleep_interval)
 
                                 # Create new client with polling timeout
-                                async with httpx.AsyncClient(
-                                    timeout=polling_timeout
-                                ) as poll_client:
-                                    list_response = await poll_client.get(
-                                        urljoin(api_url, "/api/projects")
-                                    )
+                                async with httpx.AsyncClient(timeout=polling_timeout) as poll_client:
+                                    list_response = await poll_client.get(urljoin(api_url, "/api/projects"))
                                     list_response.raise_for_status()  # Raise on HTTP errors
 
                                     projects = list_response.json()
                                     # Find project with matching title created recently
                                     for proj in projects:
                                         if proj.get("title") == title:
-                                            return json.dumps({
-                                                "success": True,
-                                                "project": proj,
-                                                "project_id": proj["id"],
-                                                "message": f"Project created successfully with ID: {proj['id']}",
-                                            })
+                                            return json.dumps(
+                                                {
+                                                    "success": True,
+                                                    "project": proj,
+                                                    "project_id": proj["id"],
+                                                    "message": f"Project created successfully with ID: {proj['id']}",
+                                                }
+                                            )
 
                             except httpx.RequestError as poll_error:
-                                logger.warning(
-                                    f"Polling attempt {attempt + 1}/{max_attempts} failed: {poll_error}"
-                                )
+                                logger.warning(f"Polling attempt {attempt + 1}/{max_attempts} failed: {poll_error}")
                                 if attempt == max_attempts - 1:  # Last attempt
                                     return MCPErrorFormatter.format_error(
                                         error_type="polling_timeout",
@@ -131,38 +123,31 @@ def register_project_tools(mcp: FastMCP):
                                         suggestion="The project may still be creating. Use list_projects to check status",
                                     )
                             except Exception as poll_error:
-                                logger.warning(
-                                    f"Unexpected error during polling attempt {attempt + 1}: {poll_error}"
-                                )
+                                logger.warning(f"Unexpected error during polling attempt {attempt + 1}: {poll_error}")
 
                         # If we couldn't find it after polling
-                        return json.dumps({
-                            "success": True,
-                            "progress_id": result["progress_id"],
-                            "message": f"Project creation in progress after {max_attempts} checks. Use list_projects to find it once complete.",
-                        })
-                    else:
-                        # Direct response (shouldn't happen with current API)
-                        return json.dumps({"success": True, "project": result})
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "create project")
+                        return json.dumps(
+                            {
+                                "success": True,
+                                "progress_id": result["progress_id"],
+                                "message": f"Project creation in progress after {max_attempts} checks. Use list_projects to find it once complete.",
+                            }
+                        )
+                    # Direct response (shouldn't happen with current API)
+                    return json.dumps({"success": True, "project": result})
+                return MCPErrorFormatter.from_http_error(response, "create project")
 
         except httpx.ConnectError as e:
-            return MCPErrorFormatter.from_exception(
-                e, "create project", {"title": title, "api_url": api_url}
-            )
+            return MCPErrorFormatter.from_exception(e, "create project", {"title": title, "api_url": api_url})
         except httpx.TimeoutException as e:
-            return MCPErrorFormatter.from_exception(
-                e, "create project", {"title": title, "timeout": str(timeout)}
-            )
+            return MCPErrorFormatter.from_exception(e, "create project", {"title": title, "timeout": str(timeout)})
         except Exception as e:
             logger.error(f"Error creating project: {e}", exc_info=True)
             return MCPErrorFormatter.from_exception(e, "create project", {"title": title})
 
     @mcp.tool()
     async def list_projects(ctx: Context) -> str:
-        """
-        List all projects.
+        """List all projects.
 
         Returns:
             JSON array of all projects with their basic information
@@ -176,20 +161,18 @@ def register_project_tools(mcp: FastMCP):
 
             async with httpx.AsyncClient(timeout=timeout) as client:
                 # CRITICAL: Pass include_content=False for lightweight response
-                response = await client.get(
-                    urljoin(api_url, "/api/projects"),
-                    params={"include_content": False}
-                )
+                response = await client.get(urljoin(api_url, "/api/projects"), params={"include_content": False})
 
                 if response.status_code == 200:
                     projects = response.json()
-                    return json.dumps({
-                        "success": True,
-                        "projects": projects,
-                        "count": len(projects),
-                    })
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "list projects")
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "projects": projects,
+                            "count": len(projects),
+                        }
+                    )
+                return MCPErrorFormatter.from_http_error(response, "list projects")
 
         except httpx.RequestError as e:
             return MCPErrorFormatter.from_exception(e, "list projects", {"api_url": api_url})
@@ -199,8 +182,7 @@ def register_project_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def get_project(ctx: Context, project_id: str) -> str:
-        """
-        Get detailed information about a specific project.
+        """Get detailed information about a specific project.
 
         Args:
             project_id: UUID of the project
@@ -221,15 +203,14 @@ def register_project_tools(mcp: FastMCP):
                 if response.status_code == 200:
                     project = response.json()
                     return json.dumps({"success": True, "project": project})
-                elif response.status_code == 404:
+                if response.status_code == 404:
                     return MCPErrorFormatter.format_error(
                         error_type="not_found",
                         message=f"Project {project_id} not found",
                         suggestion="Verify the project ID is correct",
                         http_status=404,
                     )
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "get project")
+                return MCPErrorFormatter.from_http_error(response, "get project")
 
         except httpx.RequestError as e:
             return MCPErrorFormatter.from_exception(e, "get project", {"project_id": project_id})
@@ -239,8 +220,7 @@ def register_project_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def delete_project(ctx: Context, project_id: str) -> str:
-        """
-        Delete a project.
+        """Delete a project.
 
         Args:
             project_id: UUID of the project to delete
@@ -259,19 +239,20 @@ def register_project_tools(mcp: FastMCP):
                 response = await client.delete(urljoin(api_url, f"/api/projects/{project_id}"))
 
                 if response.status_code == 200:
-                    return json.dumps({
-                        "success": True,
-                        "message": f"Project {project_id} deleted successfully",
-                    })
-                elif response.status_code == 404:
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "message": f"Project {project_id} deleted successfully",
+                        }
+                    )
+                if response.status_code == 404:
                     return MCPErrorFormatter.format_error(
                         error_type="not_found",
                         message=f"Project {project_id} not found",
                         suggestion="Verify the project ID is correct",
                         http_status=404,
                     )
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "delete project")
+                return MCPErrorFormatter.from_http_error(response, "delete project")
 
         except httpx.RequestError as e:
             return MCPErrorFormatter.from_exception(e, "delete project", {"project_id": project_id})
@@ -283,12 +264,11 @@ def register_project_tools(mcp: FastMCP):
     async def update_project(
         ctx: Context,
         project_id: str,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        github_repo: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
+        github_repo: str | None = None,
     ) -> str:
-        """
-        Update a project's basic information.
+        """Update a project's basic information.
 
         Args:
             project_id: UUID of the project to update
@@ -324,26 +304,25 @@ def register_project_tools(mcp: FastMCP):
                 )
 
             async with httpx.AsyncClient(timeout=timeout) as client:
-                response = await client.put(
-                    urljoin(api_url, f"/api/projects/{project_id}"), json=update_data
-                )
+                response = await client.put(urljoin(api_url, f"/api/projects/{project_id}"), json=update_data)
 
                 if response.status_code == 200:
                     project = response.json()
-                    return json.dumps({
-                        "success": True,
-                        "project": project,
-                        "message": "Project updated successfully",
-                    })
-                elif response.status_code == 404:
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "project": project,
+                            "message": "Project updated successfully",
+                        }
+                    )
+                if response.status_code == 404:
                     return MCPErrorFormatter.format_error(
                         error_type="not_found",
                         message=f"Project {project_id} not found",
                         suggestion="Verify the project ID is correct",
                         http_status=404,
                     )
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "update project")
+                return MCPErrorFormatter.from_http_error(response, "update project")
 
         except httpx.RequestError as e:
             return MCPErrorFormatter.from_exception(e, "update project", {"project_id": project_id})

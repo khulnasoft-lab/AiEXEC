@@ -1,8 +1,8 @@
 import copy
 
 import pytest
-from langchain_core.documents import Document
 from aiexec.schema import Data
+from langchain_core.documents import Document
 
 
 def test_data_initialization():

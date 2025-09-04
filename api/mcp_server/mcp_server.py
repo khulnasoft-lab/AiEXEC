@@ -1,5 +1,4 @@
-"""
-MCP Server for Aiexec (Microservices Version)
+"""MCP Server for Aiexec (Microservices Version).
 
 This is the MCP server that uses HTTP calls to other services
 instead of importing heavy dependencies directly. This significantly reduces
@@ -29,7 +28,6 @@ from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
-
 from mcp.server.fastmcp import Context, FastMCP
 
 # Add the project root to Python path for imports
@@ -46,9 +44,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler("/tmp/mcp_server.log", mode="a")
-        if os.path.exists("/tmp")
-        else logging.NullHandler(),
+        logging.FileHandler("/tmp/mcp_server.log", mode="a") if os.path.exists("/tmp") else logging.NullHandler(),
     ],
 )
 logger = logging.getLogger(__name__)
@@ -72,18 +68,18 @@ server_host = "0.0.0.0"  # Listen on all interfaces
 # Require AIEXEC_MCP_PORT to be set
 mcp_port = os.getenv("AIEXEC_MCP_PORT")
 if not mcp_port:
-    raise ValueError(
+    msg = (
         "AIEXEC_MCP_PORT environment variable is required. "
         "Please set it in your .env file or environment. "
         "Default value: 8051"
     )
+    raise ValueError(msg)
 server_port = int(mcp_port)
 
 
 @dataclass
 class AiexecContext:
-    """
-    Context for MCP server.
+    """Context for MCP server.
     No heavy dependencies - just service client for HTTP calls.
     """
 
@@ -124,16 +120,14 @@ async def perform_health_checks(context: AiexecContext):
             logger.info("Health check passed - dependent services healthy")
 
     except Exception as e:
-        logger.error(f"Health check error: {e}")
+        logger.exception(f"Health check error: {e}")
         context.health_status["status"] = "unhealthy"
         context.health_status["last_health_check"] = datetime.now().isoformat()
 
 
 @asynccontextmanager
 async def lifespan(server: FastMCP) -> AsyncIterator[AiexecContext]:
-    """
-    Lifecycle manager - no heavy dependencies.
-    """
+    """Lifecycle manager - no heavy dependencies."""
     global _initialization_complete, _shared_context
 
     # Quick check without lock
@@ -155,7 +149,7 @@ async def lifespan(server: FastMCP) -> AsyncIterator[AiexecContext]:
         try:
             # Initialize session manager
             logger.info("🔐 Initializing session manager...")
-            session_manager = get_session_manager()
+            get_session_manager()
             logger.info("✓ Session manager initialized")
 
             # Initialize service client for HTTP calls
@@ -178,8 +172,8 @@ async def lifespan(server: FastMCP) -> AsyncIterator[AiexecContext]:
             yield context
 
         except Exception as e:
-            logger.error(f"💥 Critical error in lifespan setup: {e}")
-            logger.error(traceback.format_exc())
+            logger.exception(f"💥 Critical error in lifespan setup: {e}")
+            logger.exception(traceback.format_exc())
             raise
         finally:
             # Clean up resources
@@ -279,16 +273,15 @@ try:
     logger.info("✓ FastMCP server instance created successfully")
 
 except Exception as e:
-    logger.error(f"✗ Failed to create FastMCP server: {e}")
-    logger.error(traceback.format_exc())
+    logger.exception(f"✗ Failed to create FastMCP server: {e}")
+    logger.exception(traceback.format_exc())
     raise
 
 
 # Health check endpoint
 @mcp.tool()
 async def health_check(ctx: Context) -> str:
-    """
-    Check health status of MCP server and dependencies.
+    """Check health status of MCP server and dependencies.
 
     Returns:
         JSON with health status, uptime, and service availability
@@ -299,45 +292,51 @@ async def health_check(ctx: Context) -> str:
 
         if context is None:
             # Server starting up
-            return json.dumps({
-                "success": True,
-                "status": "starting",
-                "message": "MCP server is initializing...",
-                "timestamp": datetime.now().isoformat(),
-            })
+            return json.dumps(
+                {
+                    "success": True,
+                    "status": "starting",
+                    "message": "MCP server is initializing...",
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
 
         # Server is ready - perform health checks
         if hasattr(context, "health_status") and context.health_status:
             await perform_health_checks(context)
 
-            return json.dumps({
-                "success": True,
-                "health": context.health_status,
-                "uptime_seconds": time.time() - context.startup_time,
-                "timestamp": datetime.now().isoformat(),
-            })
-        else:
-            return json.dumps({
+            return json.dumps(
+                {
+                    "success": True,
+                    "health": context.health_status,
+                    "uptime_seconds": time.time() - context.startup_time,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+        return json.dumps(
+            {
                 "success": True,
                 "status": "ready",
                 "message": "MCP server is running",
                 "timestamp": datetime.now().isoformat(),
-            })
+            }
+        )
 
     except Exception as e:
-        logger.error(f"Health check failed: {e}")
-        return json.dumps({
-            "success": False,
-            "error": f"Health check failed: {str(e)}",
-            "timestamp": datetime.now().isoformat(),
-        })
+        logger.exception(f"Health check failed: {e}")
+        return json.dumps(
+            {
+                "success": False,
+                "error": f"Health check failed: {e!s}",
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
 
 # Session management endpoint
 @mcp.tool()
 async def session_info(ctx: Context) -> str:
-    """
-    Get current and active session information.
+    """Get current and active session information.
 
     Returns:
         JSON with active sessions count and server uptime
@@ -356,19 +355,23 @@ async def session_info(ctx: Context) -> str:
         if context and hasattr(context, "startup_time"):
             session_info_data["server_uptime_seconds"] = time.time() - context.startup_time
 
-        return json.dumps({
-            "success": True,
-            "session_management": session_info_data,
-            "timestamp": datetime.now().isoformat(),
-        })
+        return json.dumps(
+            {
+                "success": True,
+                "session_management": session_info_data,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
     except Exception as e:
-        logger.error(f"Session info failed: {e}")
-        return json.dumps({
-            "success": False,
-            "error": f"Failed to get session info: {str(e)}",
-            "timestamp": datetime.now().isoformat(),
-        })
+        logger.exception(f"Session info failed: {e}")
+        return json.dumps(
+            {
+                "success": False,
+                "error": f"Failed to get session info: {e!s}",
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
 
 # Import and register modules
@@ -388,8 +391,8 @@ def register_modules():
     except ImportError as e:
         logger.warning(f"⚠ RAG module not available: {e}")
     except Exception as e:
-        logger.error(f"✗ Error registering RAG module: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"✗ Error registering RAG module: {e}")
+        logger.exception(traceback.format_exc())
 
     # Import and register all feature tools - separated and focused
 
@@ -405,13 +408,13 @@ def register_modules():
         logger.warning(f"⚠ Project tools module not available (optional): {e}")
     except (SyntaxError, NameError, AttributeError) as e:
         # Code errors that should not be ignored
-        logger.error(f"✗ Code error in project tools - MUST FIX: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"✗ Code error in project tools - MUST FIX: {e}")
+        logger.exception(traceback.format_exc())
         raise  # Re-raise to prevent running with broken code
     except Exception as e:
         # Unexpected errors during registration
-        logger.error(f"✗ Failed to register project tools: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"✗ Failed to register project tools: {e}")
+        logger.exception(traceback.format_exc())
         # Don't raise - allow other modules to register
 
     # Task Management Tools
@@ -424,12 +427,12 @@ def register_modules():
     except ImportError as e:
         logger.warning(f"⚠ Task tools module not available (optional): {e}")
     except (SyntaxError, NameError, AttributeError) as e:
-        logger.error(f"✗ Code error in task tools - MUST FIX: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"✗ Code error in task tools - MUST FIX: {e}")
+        logger.exception(traceback.format_exc())
         raise
     except Exception as e:
-        logger.error(f"✗ Failed to register task tools: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"✗ Failed to register task tools: {e}")
+        logger.exception(traceback.format_exc())
 
     # Document Management Tools
     try:
@@ -441,12 +444,12 @@ def register_modules():
     except ImportError as e:
         logger.warning(f"⚠ Document tools module not available (optional): {e}")
     except (SyntaxError, NameError, AttributeError) as e:
-        logger.error(f"✗ Code error in document tools - MUST FIX: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"✗ Code error in document tools - MUST FIX: {e}")
+        logger.exception(traceback.format_exc())
         raise
     except Exception as e:
-        logger.error(f"✗ Failed to register document tools: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"✗ Failed to register document tools: {e}")
+        logger.exception(traceback.format_exc())
 
     # Version Management Tools
     try:
@@ -458,12 +461,12 @@ def register_modules():
     except ImportError as e:
         logger.warning(f"⚠ Version tools module not available (optional): {e}")
     except (SyntaxError, NameError, AttributeError) as e:
-        logger.error(f"✗ Code error in version tools - MUST FIX: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"✗ Code error in version tools - MUST FIX: {e}")
+        logger.exception(traceback.format_exc())
         raise
     except Exception as e:
-        logger.error(f"✗ Failed to register version tools: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"✗ Failed to register version tools: {e}")
+        logger.exception(traceback.format_exc())
 
     # Feature Management Tools
     try:
@@ -475,26 +478,27 @@ def register_modules():
     except ImportError as e:
         logger.warning(f"⚠ Feature tools module not available (optional): {e}")
     except (SyntaxError, NameError, AttributeError) as e:
-        logger.error(f"✗ Code error in feature tools - MUST FIX: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"✗ Code error in feature tools - MUST FIX: {e}")
+        logger.exception(traceback.format_exc())
         raise
     except Exception as e:
-        logger.error(f"✗ Failed to register feature tools: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"✗ Failed to register feature tools: {e}")
+        logger.exception(traceback.format_exc())
 
     logger.info(f"📦 Total modules registered: {modules_registered}")
 
     if modules_registered == 0:
         logger.error("💥 No modules were successfully registered!")
-        raise RuntimeError("No MCP modules available")
+        msg = "No MCP modules available"
+        raise RuntimeError(msg)
 
 
 # Register all modules when this file is imported
 try:
     register_modules()
 except Exception as e:
-    logger.error(f"💥 Critical error during module registration: {e}")
-    logger.error(traceback.format_exc())
+    logger.exception(f"💥 Critical error during module registration: {e}")
+    logger.exception(traceback.format_exc())
     raise
 
 
@@ -506,7 +510,7 @@ def main():
 
         logger.info("🚀 Starting Aiexec MCP Server")
         logger.info("   Mode: Streamable HTTP")
-        logger.info(f"   URL: http://{server_host}:{server_port}/mcp")
+        logger.info("   URL: http://%s:%s/mcp", server_host, server_port)
 
         mcp_logger.info("🔥 Logfire initialized for MCP server")
         mcp_logger.info(f"🌟 Starting MCP server - host={server_host}, port={server_port}")
@@ -514,9 +518,9 @@ def main():
         mcp.run(transport="streamable-http")
 
     except Exception as e:
-        mcp_logger.error(f"💥 Fatal error in main - error={str(e)}, error_type={type(e).__name__}")
-        logger.error(f"💥 Fatal error in main: {e}")
-        logger.error(traceback.format_exc())
+        mcp_logger.error(f"💥 Fatal error in main - error={e!s}, error_type={type(e).__name__}")
+        logger.exception(f"💥 Fatal error in main: {e}")
+        logger.exception(traceback.format_exc())
         raise
 
 
@@ -526,6 +530,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         logger.info("👋 MCP server stopped by user")
     except Exception as e:
-        logger.error(f"💥 Unhandled exception: {e}")
-        logger.error(traceback.format_exc())
+        logger.exception(f"💥 Unhandled exception: {e}")
+        logger.exception(traceback.format_exc())
         sys.exit(1)

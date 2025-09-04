@@ -12,11 +12,6 @@ from uuid import UUID
 import anyio
 import orjson
 import pytest
-from asgi_lifespan import LifespanManager
-from blockbuster import blockbuster_ctx
-from dotenv import load_dotenv
-from fastapi.testclient import TestClient
-from httpx import ASGITransport, AsyncClient
 from aiexec.components.input_output import ChatInput
 from aiexec.graph import Graph
 from aiexec.initial_setup.constants import STARTER_FOLDER_NAME
@@ -30,6 +25,11 @@ from aiexec.services.database.models.user.model import User, UserCreate, UserRea
 from aiexec.services.database.models.vertex_builds.crud import delete_vertex_builds_by_flow_id
 from aiexec.services.database.utils import session_getter
 from aiexec.services.deps import get_db_service, session_scope
+from asgi_lifespan import LifespanManager
+from blockbuster import blockbuster_ctx
+from dotenv import load_dotenv
+from fastapi.testclient import TestClient
+from httpx import ASGITransport, AsyncClient
 from loguru import logger
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import selectinload

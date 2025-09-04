@@ -1,9 +1,9 @@
 from unittest.mock import patch
 
 import pytest
-from composio import Action
 from aiexec.components.composio.github_composio import ComposioGitHubAPIComponent
 from aiexec.schema.dataframe import DataFrame
+from composio import Action
 
 from tests.base import DID_NOT_EXIST, ComponentTestBaseWithoutClient
 

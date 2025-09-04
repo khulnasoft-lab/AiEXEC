@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY ./package.json ./package-lock.json ./tsconfig.json ./vite.config.ts ./index.html ./tailwind.config.js ./postcss.config.js ./prettier.config.js /app/
 RUN npm install
-COPY ./src /app/src
+COPY ./api /app/src
 RUN npm run build
 
 FROM nginx

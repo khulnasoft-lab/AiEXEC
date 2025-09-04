@@ -38,11 +38,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=README.md,target=README.md \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=api/base/README.md,target=api/base/README.md \
-    --mount=type=bind,source=api/base/uv.lock,target=api/base/uv.lock \
     --mount=type=bind,source=api/base/pyproject.toml,target=api/base/pyproject.toml \
     uv sync --frozen --no-install-project --no-editable --extra postgresql
 
-COPY ./src /app/src
+COPY ./api /app/src
 
 COPY web /tmp/web
 WORKDIR /tmp/web

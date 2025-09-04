@@ -1,11 +1,10 @@
-"""
-HTTP client utilities for MCP Server.
+"""HTTP client utilities for MCP Server.
 
 Provides consistent HTTP client configuration.
 """
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator, Optional
 
 import httpx
 
@@ -14,10 +13,9 @@ from .timeout_config import get_default_timeout, get_polling_timeout
 
 @asynccontextmanager
 async def get_http_client(
-    timeout: Optional[httpx.Timeout] = None, for_polling: bool = False
+    timeout: httpx.Timeout | None = None, *, for_polling: bool = False
 ) -> AsyncIterator[httpx.AsyncClient]:
-    """
-    Create an HTTP client with consistent configuration.
+    """Create an HTTP client with consistent configuration.
 
     Args:
         timeout: Optional custom timeout. If not provided, uses defaults.

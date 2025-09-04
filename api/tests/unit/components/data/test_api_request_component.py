@@ -5,10 +5,10 @@ import aiofiles.os
 import httpx
 import pytest
 import respx
-from httpx import Response
 from aiexec.components.data import APIRequestComponent
 from aiexec.schema import Data
 from aiexec.schema.dotdict import dotdict
+from httpx import Response
 
 from tests.base import ComponentTestBaseWithoutClient
 

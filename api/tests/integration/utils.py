@@ -5,13 +5,13 @@ from typing import Any
 
 import pytest
 import requests
-from astrapy.admin import parse_api_endpoint
 from aiexec.api.v1.schemas import InputValueRequest
 from aiexec.custom import Component
 from aiexec.custom.eval import eval_custom_component_code
 from aiexec.field_typing import Embeddings
 from aiexec.graph import Graph
 from aiexec.processing.process import run_graph_internal
+from astrapy.admin import parse_api_endpoint
 
 
 def check_env_vars(*env_vars):

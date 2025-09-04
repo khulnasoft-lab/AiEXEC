@@ -26,7 +26,7 @@ The script runs automatically in CI before backend tests via `.github/workflows/
 ## Files affected
 
 - **Input**: `web/src/utils/styleUtils.ts` (SIDEBAR_BUNDLES)
-- **Input**: `api/base/aiexec/components/**/*.py` (legacy components)  
+- **Input**: `api/base/aiexec/components/**/*.py` (legacy components)
 - **Output**: `api/.coveragerc` (auto-generated, in .gitignore)
 
 ## Benefits

@@ -1,5 +1,4 @@
-"""
-RAG Module for Aiexec MCP Server (HTTP-based version)
+"""RAG Module for Aiexec MCP Server (HTTP-based version).
 
 This module provides tools for:
 - RAG query and search
@@ -16,7 +15,6 @@ import os
 from urllib.parse import urljoin
 
 import httpx
-
 from mcp.server.fastmcp import Context, FastMCP
 
 # Import service discovery for HTTP communication
@@ -41,8 +39,7 @@ def register_rag_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def get_available_sources(ctx: Context) -> str:
-        """
-        Get list of available sources in the knowledge base.
+        """Get list of available sources in the knowledge base.
 
         Returns:
             JSON string with structure:
@@ -62,26 +59,22 @@ def register_rag_tools(mcp: FastMCP):
                     result = response.json()
                     sources = result.get("sources", [])
 
-                    return json.dumps(
-                        {"success": True, "sources": sources, "count": len(sources)}, indent=2
-                    )
-                else:
-                    error_detail = response.text
-                    return json.dumps(
-                        {"success": False, "error": f"HTTP {response.status_code}: {error_detail}"},
-                        indent=2,
-                    )
+                    return json.dumps({"success": True, "sources": sources, "count": len(sources)}, indent=2)
+                error_detail = response.text
+                return json.dumps(
+                    {"success": False, "error": f"HTTP {response.status_code}: {error_detail}"},
+                    indent=2,
+                )
 
         except Exception as e:
-            logger.error(f"Error getting sources: {e}")
+            logger.exception(f"Error getting sources: {e}")
             return json.dumps({"success": False, "error": str(e)}, indent=2)
 
     @mcp.tool()
     async def perform_rag_query(
-        ctx: Context, query: str, source_domain: str = None, match_count: int = 5
+        ctx: Context, query: str, source_domain: str | None = None, match_count: int = 5
     ) -> str:
-        """
-        Search knowledge base for relevant content using RAG.
+        """Search knowledge base for relevant content using RAG.
 
         Args:
             query: Search query
@@ -118,27 +111,25 @@ def register_rag_tools(mcp: FastMCP):
                         },
                         indent=2,
                     )
-                else:
-                    error_detail = response.text
-                    return json.dumps(
-                        {
-                            "success": False,
-                            "results": [],
-                            "error": f"HTTP {response.status_code}: {error_detail}",
-                        },
-                        indent=2,
-                    )
+                error_detail = response.text
+                return json.dumps(
+                    {
+                        "success": False,
+                        "results": [],
+                        "error": f"HTTP {response.status_code}: {error_detail}",
+                    },
+                    indent=2,
+                )
 
         except Exception as e:
-            logger.error(f"Error performing RAG query: {e}")
+            logger.exception(f"Error performing RAG query: {e}")
             return json.dumps({"success": False, "results": [], "error": str(e)}, indent=2)
 
     @mcp.tool()
     async def search_code_examples(
-        ctx: Context, query: str, source_domain: str = None, match_count: int = 5
+        ctx: Context, query: str, source_domain: str | None = None, match_count: int = 5
     ) -> str:
-        """
-        Search for relevant code examples in the knowledge base.
+        """Search for relevant code examples in the knowledge base.
 
         Args:
             query: Search query
@@ -163,9 +154,7 @@ def register_rag_tools(mcp: FastMCP):
                     request_data["source"] = source_domain
 
                 # Call the dedicated code examples endpoint
-                response = await client.post(
-                    urljoin(api_url, "/api/rag/code-examples"), json=request_data
-                )
+                response = await client.post(urljoin(api_url, "/api/rag/code-examples"), json=request_data)
 
                 if response.status_code == 200:
                     result = response.json()
@@ -178,19 +167,18 @@ def register_rag_tools(mcp: FastMCP):
                         },
                         indent=2,
                     )
-                else:
-                    error_detail = response.text
-                    return json.dumps(
-                        {
-                            "success": False,
-                            "results": [],
-                            "error": f"HTTP {response.status_code}: {error_detail}",
-                        },
-                        indent=2,
-                    )
+                error_detail = response.text
+                return json.dumps(
+                    {
+                        "success": False,
+                        "results": [],
+                        "error": f"HTTP {response.status_code}: {error_detail}",
+                    },
+                    indent=2,
+                )
 
         except Exception as e:
-            logger.error(f"Error searching code examples: {e}")
+            logger.exception(f"Error searching code examples: {e}")
             return json.dumps({"success": False, "results": [], "error": str(e)}, indent=2)
 
     # Log successful registration

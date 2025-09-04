@@ -4,10 +4,10 @@ from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
 import pytest
-from fastapi import UploadFile
 
 # Module under test
 from aiexec.api.v2.files import MCP_SERVERS_FILE, upload_user_file
+from fastapi import UploadFile
 
 if TYPE_CHECKING:
     from aiexec.services.database.models.file.model import File as UserFile

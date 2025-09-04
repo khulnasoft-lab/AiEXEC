@@ -4,7 +4,6 @@ from uuid import UUID
 
 import orjson
 import pytest
-from httpx import AsyncClient
 from aiexec.components.data.url import URLComponent
 from aiexec.components.input_output import ChatOutput
 from aiexec.components.logic import LoopComponent
@@ -19,6 +18,7 @@ from aiexec.graph import Graph
 from aiexec.memory import aget_messages
 from aiexec.schema.data import Data
 from aiexec.services.database.models.flow import FlowCreate
+from httpx import AsyncClient
 
 from tests.base import ComponentTestBaseWithClient
 from tests.unit.build_utils import build_flow, get_build_events

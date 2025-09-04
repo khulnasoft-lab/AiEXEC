@@ -1,5 +1,4 @@
-"""
-Simple task management tools for Aiexec MCP Server.
+"""Simple task management tools for Aiexec MCP Server.
 
 Provides separate, focused tools for each task operation.
 Mirrors the functionality of the original manage_task tool but with individual tools.
@@ -7,12 +6,11 @@ Mirrors the functionality of the original manage_task tool but with individual t
 
 import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 from urllib.parse import urljoin
 
 import httpx
 from mcp.server.fastmcp import Context, FastMCP
-
 from src.mcp_server.utils.error_handling import MCPErrorFormatter
 from src.mcp_server.utils.timeout_config import get_default_timeout
 from src.server.config.service_discovery import get_api_url
@@ -31,12 +29,11 @@ def register_task_tools(mcp: FastMCP):
         description: str = "",
         assignee: str = "User",
         task_order: int = 0,
-        feature: Optional[str] = None,
-        sources: Optional[List[Dict[str, str]]] = None,
-        code_examples: Optional[List[Dict[str, str]]] = None,
+        feature: str | None = None,
+        sources: list[dict[str, str]] | None = None,
+        code_examples: list[dict[str, str]] | None = None,
     ) -> str:
-        """
-        Create a new task in a project.
+        """Create a new task in a project.
 
         Args:
             project_id: Project UUID (required)
@@ -131,19 +128,18 @@ def register_task_tools(mcp: FastMCP):
 
                 if response.status_code == 200:
                     result = response.json()
-                    return json.dumps({
-                        "success": True,
-                        "task": result.get("task"),
-                        "task_id": result.get("task", {}).get("id"),
-                        "message": result.get("message", "Task created successfully"),
-                    })
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "create task")
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "task": result.get("task"),
+                            "task_id": result.get("task", {}).get("id"),
+                            "message": result.get("message", "Task created successfully"),
+                        }
+                    )
+                return MCPErrorFormatter.from_http_error(response, "create task")
 
         except httpx.RequestError as e:
-            return MCPErrorFormatter.from_exception(
-                e, "create task", {"project_id": project_id, "title": title}
-            )
+            return MCPErrorFormatter.from_exception(e, "create task", {"project_id": project_id, "title": title})
         except Exception as e:
             logger.error(f"Error creating task: {e}", exc_info=True)
             return MCPErrorFormatter.from_exception(e, "create task")
@@ -151,15 +147,14 @@ def register_task_tools(mcp: FastMCP):
     @mcp.tool()
     async def list_tasks(
         ctx: Context,
-        filter_by: Optional[str] = None,
-        filter_value: Optional[str] = None,
-        project_id: Optional[str] = None,
+        filter_by: str | None = None,
+        filter_value: str | None = None,
+        project_id: str | None = None,
         include_closed: bool = False,
         page: int = 1,
         per_page: int = 50,
     ) -> str:
-        """
-        List tasks with filtering options.
+        """List tasks with filtering options.
 
         Args:
             filter_by: "status" | "project" | "assignee" (optional)
@@ -182,7 +177,7 @@ def register_task_tools(mcp: FastMCP):
             timeout = get_default_timeout()
 
             # Build URL and parameters based on filter type
-            params: Dict[str, Any] = {
+            params: dict[str, Any] = {
                 "page": page,
                 "per_page": per_page,
                 "exclude_large_fields": True,  # Always exclude large fields in MCP responses
@@ -243,12 +238,14 @@ def register_task_tools(mcp: FastMCP):
                         suggestion="Expected list or object, got different type.",
                     )
 
-                return json.dumps({
-                    "success": True,
-                    "tasks": tasks,
-                    "total_count": total_count,
-                    "count": len(tasks),
-                })
+                return json.dumps(
+                    {
+                        "success": True,
+                        "tasks": tasks,
+                        "total_count": total_count,
+                        "count": len(tasks),
+                    }
+                )
 
         except httpx.RequestError as e:
             return MCPErrorFormatter.from_exception(
@@ -260,8 +257,7 @@ def register_task_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def get_task(ctx: Context, task_id: str) -> str:
-        """
-        Get detailed information about a specific task.
+        """Get detailed information about a specific task.
 
         Args:
             task_id: UUID of the task
@@ -282,15 +278,14 @@ def register_task_tools(mcp: FastMCP):
                 if response.status_code == 200:
                     task = response.json()
                     return json.dumps({"success": True, "task": task})
-                elif response.status_code == 404:
+                if response.status_code == 404:
                     return MCPErrorFormatter.format_error(
                         error_type="not_found",
                         message=f"Task {task_id} not found",
                         suggestion="Verify the task ID is correct",
                         http_status=404,
                     )
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "get task")
+                return MCPErrorFormatter.from_http_error(response, "get task")
 
         except httpx.RequestError as e:
             return MCPErrorFormatter.from_exception(e, "get task", {"task_id": task_id})
@@ -302,17 +297,16 @@ def register_task_tools(mcp: FastMCP):
     async def update_task(
         ctx: Context,
         task_id: str,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        status: Optional[str] = None,
-        assignee: Optional[str] = None,
-        task_order: Optional[int] = None,
-        feature: Optional[str] = None,
-        sources: Optional[List[Dict[str, str]]] = None,
-        code_examples: Optional[List[Dict[str, str]]] = None,
+        title: str | None = None,
+        description: str | None = None,
+        status: str | None = None,
+        assignee: str | None = None,
+        task_order: int | None = None,
+        feature: str | None = None,
+        sources: list[dict[str, str]] | None = None,
+        code_examples: list[dict[str, str]] | None = None,
     ) -> str:
-        """
-        Update a task's properties.
+        """Update a task's properties.
 
         Args:
             task_id: UUID of the task to update
@@ -363,19 +357,18 @@ def register_task_tools(mcp: FastMCP):
                 )
 
             async with httpx.AsyncClient(timeout=timeout) as client:
-                response = await client.put(
-                    urljoin(api_url, f"/api/tasks/{task_id}"), json=update_fields
-                )
+                response = await client.put(urljoin(api_url, f"/api/tasks/{task_id}"), json=update_fields)
 
                 if response.status_code == 200:
                     result = response.json()
-                    return json.dumps({
-                        "success": True,
-                        "task": result.get("task"),
-                        "message": result.get("message", "Task updated successfully"),
-                    })
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "update task")
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "task": result.get("task"),
+                            "message": result.get("message", "Task updated successfully"),
+                        }
+                    )
+                return MCPErrorFormatter.from_http_error(response, "update task")
 
         except httpx.RequestError as e:
             return MCPErrorFormatter.from_exception(
@@ -387,8 +380,7 @@ def register_task_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def delete_task(ctx: Context, task_id: str) -> str:
-        """
-        Delete/archive a task.
+        """Delete/archive a task.
 
         This removes the task from active lists but preserves it in the database
         for audit purposes (soft delete).
@@ -416,17 +408,21 @@ def register_task_tools(mcp: FastMCP):
 
                 if response.status_code == 200:
                     result = response.json()
-                    return json.dumps({
-                        "success": True,
-                        "message": result.get("message", f"Task {task_id} deleted successfully"),
-                        "subtasks_archived": result.get("subtasks_archived", 0),
-                    })
-                elif response.status_code == 404:
-                    return json.dumps({
-                        "success": False,
-                        "error": f"Task {task_id} not found. Use list_tasks to find valid task IDs.",
-                    })
-                elif response.status_code == 400:
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "message": result.get("message", f"Task {task_id} deleted successfully"),
+                            "subtasks_archived": result.get("subtasks_archived", 0),
+                        }
+                    )
+                if response.status_code == 404:
+                    return json.dumps(
+                        {
+                            "success": False,
+                            "error": f"Task {task_id} not found. Use list_tasks to find valid task IDs.",
+                        }
+                    )
+                if response.status_code == 400:
                     # More specific error for bad requests
                     error_text = response.text
                     if "already archived" in error_text.lower():
@@ -442,8 +438,7 @@ def register_task_tools(mcp: FastMCP):
                         suggestion="Check if the task meets deletion requirements",
                         http_status=400,
                     )
-                else:
-                    return MCPErrorFormatter.from_http_error(response, "delete task")
+                return MCPErrorFormatter.from_http_error(response, "delete task")
 
         except httpx.RequestError as e:
             return MCPErrorFormatter.from_exception(e, "delete task", {"task_id": task_id})

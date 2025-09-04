@@ -4,9 +4,9 @@ import uuid
 from uuid import UUID
 
 import pytest
-from httpx import codes
 from aiexec.memory import aget_messages
 from aiexec.services.database.models.flow import FlowUpdate
+from httpx import codes
 from loguru import logger
 
 from tests.unit.build_utils import build_flow, consume_and_assert_stream, create_flow, get_build_events

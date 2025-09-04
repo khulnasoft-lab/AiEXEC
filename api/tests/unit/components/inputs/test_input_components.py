@@ -1,8 +1,8 @@
 import pytest
-from anyio import Path
 from aiexec.components.input_output import ChatInput, TextInputComponent
 from aiexec.schema.message import Message
 from aiexec.utils.constants import MESSAGE_SENDER_AI, MESSAGE_SENDER_NAME_USER, MESSAGE_SENDER_USER
+from anyio import Path
 
 from tests.base import ComponentTestBaseWithClient, ComponentTestBaseWithoutClient
 

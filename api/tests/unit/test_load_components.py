@@ -286,10 +286,7 @@ class TestComponentLoading:
         all_types_max = max(all_types_times)
 
         print(f"\nRepeated Loading Performance ({num_iterations} iterations):")
-        print(
-            f"get_aiexec_components_list - avg: {aiexec_avg:.4f}s, min:"
-            f" {aiexec_min:.4f}s, max: {aiexec_max:.4f}s"
-        )
+        print(f"get_aiexec_components_list - avg: {aiexec_avg:.4f}s, min: {aiexec_min:.4f}s, max: {aiexec_max:.4f}s")
         print(f"aget_all_types_dict - avg: {all_types_avg:.4f}s, min: {all_types_min:.4f}s, max: {all_types_max:.4f}s")
 
         # Performance should be reasonably consistent

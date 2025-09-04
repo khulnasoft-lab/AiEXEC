@@ -4,6 +4,8 @@ import sys
 
 import typer
 
+from aiexec.__main__ import main as aiexec_main
+
 
 def main():
     """Launches aiexec with appropriate environment setup.
@@ -15,8 +17,6 @@ def main():
         _launch_with_exec()
     else:
         # On non-macOS systems, call the main function directly
-        from aiexec.__main__ import main as aiexec_main
-
         aiexec_main()
 
 
@@ -44,7 +44,7 @@ def _launch_with_exec():
     os.environ["no_proxy"] = "*"
 
     try:
-        os.execv(sys.executable, [sys.executable, "-m", "aiexec.__main__"] + sys.argv[1:])  # noqa: S606
+        os.execv(sys.executable, [sys.executable, "-m", "aiexec.__main__", *sys.argv[1:]])  # noqa: S606
     except OSError as e:
         # If exec fails, we need to exit since the process replacement failed
         typer.echo(f"Failed to exec aiexec: {e}", file=sys.stderr)

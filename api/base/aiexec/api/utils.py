@@ -10,17 +10,20 @@ from fastapi import Depends, HTTPException, Query
 from fastapi_pagination import Params
 from loguru import logger
 from sqlalchemy import delete
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from aiexec.graph.graph.base import Graph
+from aiexec.helpers.user import get_user_by_flow_id_or_endpoint_name
 from aiexec.services.auth.utils import get_current_active_user, get_current_active_user_mcp
-from aiexec.services.database.models.flow.model import Flow
+from aiexec.services.database.models.flow.model import AccessTypeEnum, Flow
 from aiexec.services.database.models.message.model import MessageTable
 from aiexec.services.database.models.transactions.model import TransactionTable
 from aiexec.services.database.models.user.model import User
 from aiexec.services.database.models.vertex_builds.model import VertexBuildTable
 from aiexec.services.deps import get_session, session_scope
 from aiexec.services.store.utils import get_lf_version_from_pypi
+from aiexec.utils.version import get_version_info
 
 if TYPE_CHECKING:
     from aiexec.services.chat.service import ChatService
@@ -108,8 +111,6 @@ def get_is_component_from_data(data: dict):
 
 
 async def check_aiexec_version(component: StoreComponentCreate) -> None:
-    from aiexec.utils.version import get_version_info
-
     __version__ = get_version_info()["version"]
 
     if not component.last_tested_version:
@@ -352,10 +353,6 @@ async def verify_public_flow_and_get_user(flow_id: uuid.UUID, client_id: str | N
 
     # Check if the flow is public
     async with session_scope() as session:
-        from sqlmodel import select
-
-        from aiexec.services.database.models.flow.model import AccessTypeEnum, Flow
-
         flow = (await session.exec(select(Flow).where(Flow.id == flow_id))).first()
         if not flow or flow.access_type is not AccessTypeEnum.PUBLIC:
             raise HTTPException(status_code=403, detail="Flow is not public")
@@ -366,8 +363,6 @@ async def verify_public_flow_and_get_user(flow_id: uuid.UUID, client_id: str | N
 
     # Get the user associated with the flow
     try:
-        from aiexec.helpers.user import get_user_by_flow_id_or_endpoint_name
-
         user = await get_user_by_flow_id_or_endpoint_name(str(flow_id))
 
     except Exception as exc:

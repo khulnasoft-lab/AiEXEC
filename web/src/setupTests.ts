@@ -56,7 +56,6 @@ beforeAll(() => {
   };
 });
 
-after all(() => {
-  console.error = originalError;
-  console.warn = originalWarn;
+afterAll(() => {
+  // runs once after all tests
 });

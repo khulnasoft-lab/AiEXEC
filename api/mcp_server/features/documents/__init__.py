@@ -1,5 +1,4 @@
-"""
-Document and version management tools for Aiexec MCP Server.
+"""Document and version management tools for Aiexec MCP Server.
 
 This module provides separate tools for document operations:
 - create_document, list_documents, get_document, update_document, delete_document

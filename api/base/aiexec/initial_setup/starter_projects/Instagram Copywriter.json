@@ -317,7 +317,7 @@
             "legacy": false,
             "lf_version": "1.1.1",
             "metadata": {
-              "code_hash": "192913db3453",
+              "code_hash": "b6d8ec6a9054",
               "module": "aiexec.components.input_output.chat.ChatInput"
             },
             "output_types": [],
@@ -789,7 +789,7 @@
             "legacy": false,
             "lf_version": "1.0.19.post2",
             "metadata": {
-              "code_hash": "efdcba3771af",
+              "code_hash": "ca5cb64f127f",
               "module": "aiexec.components.input_output.text.TextInputComponent"
             },
             "output_types": [],
@@ -1064,7 +1064,7 @@
             "icon": "MessagesSquare",
             "legacy": false,
             "metadata": {
-              "code_hash": "6f74e04e39d5",
+              "code_hash": "43f179f3b6c7",
               "module": "aiexec.components.input_output.chat_output.ChatOutput"
             },
             "output_types": [],
@@ -1587,7 +1587,7 @@
             "last_updated": "2025-07-18T17:42:31.004Z",
             "legacy": false,
             "metadata": {
-              "code_hash": "6843645056d9",
+              "code_hash": "a44588cec021",
               "module": "aiexec.components.tavily.tavily_search.TavilySearchComponent"
             },
             "minimized": false,

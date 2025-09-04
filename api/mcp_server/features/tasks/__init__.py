@@ -1,5 +1,4 @@
-"""
-Task management tools for Aiexec MCP Server.
+"""Task management tools for Aiexec MCP Server.
 
 This module provides separate tools for each task operation:
 - create_task: Create a new task

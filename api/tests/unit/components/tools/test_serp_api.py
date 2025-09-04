@@ -1,12 +1,12 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from langchain_core.tools import ToolException
 from aiexec.components.serpapi.serp import SerpComponent
 from aiexec.custom import Component
 from aiexec.custom.utils import build_custom_component_template
 from aiexec.schema import Data
 from aiexec.schema.message import Message
+from langchain_core.tools import ToolException
 
 
 def test_serpapi_initialization():

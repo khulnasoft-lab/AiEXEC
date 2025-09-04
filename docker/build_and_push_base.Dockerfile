@@ -45,7 +45,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     cd api/base && uv sync --frozen --no-install-project --no-dev --no-editable --extra postgresql
 
-COPY ./src /app/src
+COPY ./api /app/src
 
 COPY web /tmp/web
 WORKDIR /tmp/web

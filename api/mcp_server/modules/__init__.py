@@ -1,5 +1,4 @@
-"""
-Modular MCP Tools Package
+"""Modular MCP Tools Package.
 
 This package contains modular MCP tool implementations:
 - rag_module: RAG and web crawling tools

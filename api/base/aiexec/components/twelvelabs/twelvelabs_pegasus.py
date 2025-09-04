@@ -83,8 +83,7 @@ class TwelveLabsPegasus(Component):
             value=0.7,
             range_spec=RangeSpec(min=0, max=1, step=0.01),
             info=(
-                "Controls randomness in responses. Lower values are more deterministic, "
-                "higher values are more creative."
+                "Controls randomness in responses. Lower values are more deterministic, higher values are more creative."
             ),
         ),
     ]

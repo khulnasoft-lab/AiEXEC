@@ -157,8 +157,7 @@ class AstraDBGraphVectorStoreComponent(LCVectorStoreComponent):
         FloatInput(
             name="search_score_threshold",
             display_name="Search Score Threshold",
-            info="Minimum similarity score threshold for search results. "
-            "(when using 'Similarity with score threshold')",
+            info="Minimum similarity score threshold for search results. (when using 'Similarity with score threshold')",
             value=0,
             advanced=True,
         ),

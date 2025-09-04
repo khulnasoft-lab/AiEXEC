@@ -2,7 +2,6 @@ from collections.abc import AsyncIterator
 from typing import Any
 from unittest.mock import AsyncMock
 
-from langchain_core.agents import AgentFinish
 from aiexec.base.agents.agent import process_agent_events
 from aiexec.base.agents.events import (
     handle_on_chain_end,
@@ -16,6 +15,7 @@ from aiexec.schema.content_block import ContentBlock
 from aiexec.schema.content_types import ToolContent
 from aiexec.schema.message import Message
 from aiexec.utils.constants import MESSAGE_SENDER_AI
+from langchain_core.agents import AgentFinish
 
 
 async def create_event_iterator(events: list[dict[str, Any]]) -> AsyncIterator[dict[str, Any]]:
